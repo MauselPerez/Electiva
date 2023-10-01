@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 3</title>
+</head>
+<body>
+    <div id="products">
+
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            //Cuando la pagina se carga
+            load_products();
+        });
+
+
+        //Cargar los productos
+        load_products = async () => {
+            try {                                    
+                fetch("https://fakestoreapi.com/products", {             
+                    method: 'GET', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {    
+                    loadSelectProducts(data);
+                    //loadSelectCategorys(data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        //Creo y cargo los productos en el div de productos
+        const loadSelectProducts = async(datos)=> {        
+            var div = document.getElementById("products");
+            datos.forEach(product => {            
+                var p = document.createElement('p');
+                var pText = document.createTextNode(product.title);
+                p.appendChild(pText)
+                div.appendChild(p); 
+                //La imagen del producto
+                var img = document.createElement('img');
+                img.setAttribute('src',product.image);
+                div.appendChild(img);
+                
+            })        
+        }
+    </script>
+</body>
+</html>
