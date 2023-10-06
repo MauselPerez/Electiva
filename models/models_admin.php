@@ -15,7 +15,7 @@ class DBConfig {
         $this->error = true;
     }
 	
-	function conexion($host='localhost',$user='root',$pass='Gt4s.frc-kvCOl221337fc',$db='db_empresav'){  // connection function
+	function conexion($host='localhost',$user='root',$pass='Gt4s.frc-kvCOl221337fc',$db='db_access_control'){  // connection function
 		$this->error_message = "";
         $this->host = $host;
         $this->user = $user;
