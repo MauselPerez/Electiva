@@ -92,7 +92,7 @@
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg">Sign in to start your session</p>
+            <p class="login-box-msg">¡Iniciar Sesión!</p>
             <form action="login.php" method="POST" id="frm_user" name="frm_user">
                 <div class="input-group mb-3">
                     <input id="user" name="user" class="form-control" placeholder="Usuario" required>
