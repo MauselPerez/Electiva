@@ -9,7 +9,7 @@
     <title>Inicar Sesion</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <link rel="shortcut icon" href="../imgs/login.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css">
     <!-- Ionicons -->
@@ -87,7 +87,9 @@
 ?>
 <div class="login-box">
     <div class="login-logo">
-        <a href="../../index2.html"><b>Iniciar Sesión</b></a>
+        <a href="../../index2.html">
+            <b>Iniciar Sesión <span class="fas fa-user"></span></b>
+        </a>
     </div>
     <!-- /.login-logo -->
     <div class="card">
@@ -139,10 +141,10 @@
             </div>
             <!-- /.social-auth-links -->
 
-            <p class="mb-1">
+            <p class="mb-1" style="float: left;">
                 <a href="forgot-password.php">Olvidé mi contraseña</a>
             </p>
-            <p class="mb-0">
+            <p class="mb-0" style="float: right;">
                 <a href="register.php" class="text-center">Registrarme</a>
             </p>
         </div>
