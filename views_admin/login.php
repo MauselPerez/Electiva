@@ -35,16 +35,16 @@
         {
             if ($user[0]['password'] == sha1($_POST['password'])) 
             {
-                header("Location: starter.php");
+                header("Location: index.php");
             }
             else 
             {
-                echo "<script>alert('Suerte, escribe bien la contraseña')</script>";
+                echo "<script>alert('Contraseña incorrecta')</script>";
             }
         }
         else 
         {
-            echo "<script>alert('Este usuario no se encuentra registrado')</script>";
+            echo "<script>alert('El usuario no se encuentra registrado o no es válido')</script>";
         }
     }
 
@@ -87,12 +87,12 @@
 ?>
 <div class="login-box">
     <div class="login-logo">
-        <a href="../../index2.html"><b>Admin</b>LTE</a>
+        <a href="../../index2.html"><b>Iniciar Sesión</b></a>
     </div>
     <!-- /.login-logo -->
     <div class="card">
         <div class="card-body login-card-body">
-            <p class="login-box-msg">¡Iniciar Sesión!</p>
+            
             <form action="login.php" method="POST" id="frm_user" name="frm_user">
                 <div class="input-group mb-3">
                     <input id="user" name="user" class="form-control" placeholder="Usuario" required>
@@ -128,7 +128,7 @@
             </form>
 
             <div class="social-auth-links text-center mb-3">
-                <p>- OR -</p>
+                <p>- O -</p>
                 <a href="#" class="btn btn-block btn-primary">
                     <i class="fab fa-facebook mr-2"></i> Iniciar sesión usando Facebook
                 </a>
@@ -140,10 +140,10 @@
             <!-- /.social-auth-links -->
 
             <p class="mb-1">
-                <a href="forgot-password.html">Olvide la contraseña</a>
+                <a href="forgot-password.php">Olvidé mi contraseña</a>
             </p>
             <p class="mb-0">
-                <a href="register.html" class="text-center">Registrarme</a>
+                <a href="register.php" class="text-center">Registrarme</a>
             </p>
         </div>
         <!-- /.login-card-body -->
