@@ -1,5 +1,6 @@
 <?php 
     include "../controllers/controller_consultas_backend.php";
+    include "public/includes/google_auth.php";
 ?>
 <!DOCTYPE html>
 <html>
@@ -12,6 +13,9 @@
     <link rel="shortcut icon" href="../imgs/login.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/toastr/toastr.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- icheck bootstrap -->
@@ -39,7 +43,8 @@
             }
             else 
             {
-                echo "<script>alert('Contraseña incorrecta')</script>";
+                //echo "<script>alert('Contraseña incorrecta')</script>";
+                echo "<script> $(document).Toasts ('create', {class: 'bg-danger', title: 'Contraseña incorrecta', subtitle: 'Error', body: 'La contraseña que ingreso no coincide.'})</script>";
             }
         }
         else 
@@ -52,42 +57,12 @@
     {
         $code = $_GET['code'];
 
-        // Intercambia el código por un token de acceso usando la API de Google
-        $token_url = 'https://accounts.google.com/o/oauth2/token';
-        $params = array(
-            'code' => $code,
-            'client_id' => '826238057510-s32b1slhd3e2svbus343gm8o7sdkd8em.apps.googleusercontent.com',
-            'client_secret' => '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',
-            'redirect_uri' => 'http://localhost/web_electiva/views_admin/login.php',
-            'grant_type' => 'authorization_code'
-        );
-
-        $curl = curl_init($token_url);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $token_data = json_decode($response, true);
-
-        // Verifica si se obtuvo un token de acceso
-        if (isset($token_data['access_token'])) 
-        {
-            // El usuario ha iniciado sesión correctamente, redirígelo a starter.php
-            header("Location: starter.php");
-            exit();
-        } 
-        else 
-        {
-            // Ocurrió un error al obtener el token de acceso, maneja el error aquí
-            echo "Error al iniciar sesión con Google.";
-        }
+        validate_google_account($code);
     }
 ?>
 <div class="login-box">
     <div class="login-logo">
-        <a href="../../index2.html">
+        <a href="index2.html">
             <b>Iniciar Sesión <span class="fas fa-user"></span></b>
         </a>
     </div>
@@ -144,9 +119,9 @@
             <p class="mb-1" style="float: left;">
                 <a href="forgot-password.php">Olvidé mi contraseña</a>
             </p>
-            <p class="mb-0" style="float: right;">
+            <!--<p class="mb-0" style="float: right;">
                 <a href="register.php" class="text-center">Registrarme</a>
-            </p>
+            </p>-->
         </div>
         <!-- /.login-card-body -->
     </div>
@@ -159,6 +134,8 @@
 <script src="../templates/AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
 <script src="../templates/AdminLTE-3.0.5/dist/js/adminlte.min.js"></script>
-
+<script src="../templates/AdminLTE-3.0.5/plugins/sweetalert2/sweetalert2.min.js"></script>
+<!-- Toastr -->
+<script src="../templates/AdminLTE-3.0.5/plugins/toastr/toastr.min.js"></script>
 </body>
 </html>

@@ -3,7 +3,7 @@ session_start();
 require_once( "../models/models_admin.php");
 
 class ConsultasDB extends DBConfig {
-    					
+
 	function consulta_generales($sql){
 		$this->config();
 		$this->conexion(); 
