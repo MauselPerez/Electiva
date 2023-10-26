@@ -24,6 +24,9 @@
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 </head>
 <body class="hold-transition login-page">
 
@@ -34,17 +37,15 @@
         $user = array();
 
         $user = $obj->users_validate($_POST['user']);
-
         if (!empty($user)) 
-        {
+        {   
             if ($user[0]['password'] == sha1($_POST['password'])) 
-            {
-                header("Location: index.php");
+            {   
+                header("Location: ../views_admin/index.php");
             }
             else 
             {
-                //echo "<script>alert('Contraseña incorrecta')</script>";
-                echo "<script> $(document).Toasts ('create', {class: 'bg-danger', title: 'Contraseña incorrecta', subtitle: 'Error', body: 'La contraseña que ingreso no coincide.'})</script>";
+                echo "<script> toastr.error('Verifique la contraseña ingresada', 'Contraseña incorrecta');</script>";
             }
         }
         else 
@@ -117,7 +118,7 @@
             <!-- /.social-auth-links -->
 
             <p class="mb-1" style="float: left;">
-                <a href="forgot-password.php">Olvidé mi contraseña</a>
+                <a href="../views_admin/forgot-password.php">Olvidé mi contraseña</a>
             </p>
             <!--<p class="mb-0" style="float: right;">
                 <a href="register.php" class="text-center">Registrarme</a>
@@ -129,13 +130,12 @@
 <!-- /.login-box -->
 
 <!-- jQuery -->
-<script src="../templates/AdminLTE-3.0.5/plugins/jquery/jquery.min.js"></script>
+<script src="AdminLTE-3.0.5/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="../templates/AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
-<script src="../templates/AdminLTE-3.0.5/dist/js/adminlte.min.js"></script>
-<script src="../templates/AdminLTE-3.0.5/plugins/sweetalert2/sweetalert2.min.js"></script>
+<script src="AdminLTE-3.0.5/dist/js/adminlte.min.js"></script>
+<script src="AdminLTE-3.0.5/plugins/sweetalert2/sweetalert2.min.js"></script>
 <!-- Toastr -->
-<script src="../templates/AdminLTE-3.0.5/plugins/toastr/toastr.min.js"></script>
 </body>
 </html>

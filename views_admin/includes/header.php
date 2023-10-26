@@ -45,7 +45,7 @@
         <i class="fas fa-user mr-2"></i> Editar
       </a>
       <div class="dropdown-divider"></div>
-      <a href="login.php" class="dropdown-item dropdown-footer">Cerrar Sesión</a>
+      <a href="../templates/login.php" class="dropdown-item dropdown-footer">Cerrar Sesión</a>
     </div>
   </li>
   
