@@ -1,6 +1,8 @@
 <?php 
-    include "../controllers/controller_consultas_backend.php";
+    include "../app/login-services.php";
     include "public/includes/google_auth.php";
+
+    $objAPI = new loginAPI();
 ?>
 <!DOCTYPE html>
 <html>
@@ -33,32 +35,26 @@
 <?php 
     if (isset($_POST['user']) && isset($_POST['password'])) 
     {
-        $obj = new ExtraerDatos();
-        $user = array();
-
-        $user = $obj->users_validate($_POST['user']);
-        if (!empty($user)) 
-        {   
-            if ($user[0]['password'] == sha1($_POST['password'])) 
-            {   
-                header("Location: ../views_admin/index.php");
-            }
-            else 
-            {
-                echo "<script> toastr.error('Verifique la contraseña ingresada', 'Contraseña incorrecta');</script>";
-            }
-        }
-        else 
-        {
-            echo "<script>alert('El usuario no se encuentra registrado o no es válido')</script>";
-        }
+        $objAPI->validate_users();
     }
 
     if (isset($_GET['code'])) 
     {
         $code = $_GET['code'];
-
         validate_google_account($code);
+    }
+
+    if (isset($_GET['error'])) 
+    {
+        $error = $_GET['error'];
+        if ($error == 1) 
+        {
+            echo "<script>toastr.error('Contraseña incorrecta', 'Error');</script>";
+        }
+        else if ($error == 2) 
+        {
+            echo "<script>toastr.error('Usuario no existe', 'Error');</script>";
+        }
     }
 ?>
 <div class="login-box">
