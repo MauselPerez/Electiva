@@ -32,8 +32,8 @@ class EmpleadosAPI {
     {
         switch ($action) 
         {
-            case 'getAllEmployees':
-                return $this->getAllEmployees($input);
+            case 'getEmployeeByID':
+                return $this->getEmployeeByID($input);
             case 'otraAccion':
                 return $this->otraAccion($input);
             default:
@@ -41,10 +41,15 @@ class EmpleadosAPI {
         }
     }
 
-    function getAllEmployees($input) 
+    function getEmployeeByID($input) 
     {
-        // Lógica para la acción getAllEmployees
-        $response = array('success' => true, 'message' => 'Funciona para la consulta');
+        //Ejecutar el metodo de get_employee_by_id
+        $idu = $input['qrCode'];
+        $consulta = new ExtraerDatos();
+        $lista = $consulta->get_employee_by_id($idu);
+        $response = array('success' => true, 'message' => 'Empleado encontrado', 'data' => $lista);
+
+        
         return $response;
     }
 

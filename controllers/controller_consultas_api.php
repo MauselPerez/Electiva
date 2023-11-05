@@ -47,7 +47,7 @@ class ExtraerDatos extends ConsultasDB
 			FROM 
 				ac_employees 
 			WHERE 
-				id=$idu ";
+				user_id=$idu ";
 
 		$lista = $this->consulta_generales($sql);	
 		return $lista;

@@ -62,7 +62,7 @@
                 url: '../../app/empleados-services.php',
                 type: 'POST',
                 dataType: 'json',
-                data: JSON.stringify({ action: 'getAllEmployees', qrCode: qr }),
+                data: JSON.stringify({ action: 'getEmployeeByID', qrCode: qr }),
                 contentType: 'application/json',
                 success: function(response) {
                     // Manejas la respuesta del servidor aquí
