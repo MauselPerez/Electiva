@@ -62,7 +62,7 @@ class ExtraerDatos extends ConsultasDB
 				user_id=$idu ";
 
 		$lista = $this->consulta_generales($sql);	
-		return $lista;
+		return $lista[0];
 	}
 	
 	//VALIDAR EL INICIO DE SESION
