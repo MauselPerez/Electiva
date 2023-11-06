@@ -13,6 +13,14 @@
 </head>
 <body class="hold-transition lockscreen">
 <div class="lockscreen-wrapper">
+<?php
+    if (isset($_POST) && !empty($_POST)) 
+    {
+        echo '<pre>'; print_r($_POST); echo '</pre>';
+        die("Sirve");
+    }
+?>
+
     <div class="lockscreen-logo">
         <a href="../../templates/AdminLTE-3.0.5/index2.html"><b>CODIGO DEL EMPLEADO</b></a>
     </div>
@@ -38,9 +46,6 @@
     <div class="help-block text-center">
         Ingresa el codigo de empleado para iniciar sesion
     </div>
-    <!--<div class="text-center">
-        <a href="login.html">Or sign in as a different user</a>
-    </div>-->
     <div class="lockscreen-footer text-center">
         Empleado que no porte su carnet no podra ingresar al area de trabajo
     </div>
@@ -51,63 +56,66 @@
     <!--SI EL EMPLEADO EXISTE -->
     <div class="modal fade" id="employee">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Información del empleado</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="container">
-                        <div class="row" style="margin-bottom: 60px;">
-                            <div class="col-md-12" style="text-align: center;">
-                                <img id="user_image" src="" alt="User Image" style="width: 200px;">
+            <form id="markings" name="markings" method="POST" action="index.php">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Información del empleado</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <div class="row" style="margin-bottom: 60px;">
+                                <div class="col-md-12" style="text-align: center;">
+                                    <img id="user_image" src="" alt="User Image" style="width: 200px;">
+                                </div>
                             </div>
-                        </div>
-                        <div class="row" style="margin-bottom: 30px;">
-                            <div class="col-md-3">
-                                <label for="document_number">Numero de documento</label>
-                                <input type="text" class="form-control" id="document_number" name="document_number" value="">
+                            <div class="row" style="margin-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <label for="document_number">Numero de documento</label>
+                                    <input type="text" class="form-control" id="document_number" name="document_number" value="">
+                                    <input type="text" class="form-control" id="user_id" name="user_id" value="" hidden>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="first_name">Nombres</label>
+                                    <input type="text" class="form-control" id="first_name" name="first_name" value="">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="last_name">Apellidos</label>
+                                    <input type="text" class="form-control" id="last_name" name="last_name" value="">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="age">Edad</label>
+                                    <input type="text" class="form-control" id="age" name="age" value="">
+                                </div>
                             </div>
-                            <div class="col-md-3">
-                                <label for="first_name">Nombres</label>
-                                <input type="text" class="form-control" id="first_name" name="first_name" value="">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="last_name">Apellidos</label>
-                                <input type="text" class="form-control" id="last_name" name="last_name" value="">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="age">Edad</label>
-                                <input type="text" class="form-control" id="age" name="age" value="">
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <label for="phone">Telefono</label>
-                                <input type="text" class="form-control" id="phone" name="phone" value="">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="email">Correo</label>
-                                <input type="text" class="form-control" id="email" name="email" value="">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="charge">Cargo</label>
-                                <input type="text" class="form-control" id="charge" name="charge" value="">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="department">Departamento</label>
-                                <input type="text" class="form-control" id="department" name="department" value="">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label for="phone">Telefono</label>
+                                    <input type="text" class="form-control" id="phone" name="phone" value="">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="email">Correo</label>
+                                    <input type="text" class="form-control" id="email" name="email" value="">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="charge">Cargo</label>
+                                    <input type="text" class="form-control" id="charge" name="charge" value="">
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="department">Departamento</label>
+                                    <input type="text" class="form-control" id="department" name="department" value="">
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal"> <i class="fas fa-sign-out-alt"></i> SALIDA</button>
+                        <button id="entry" class="btn btn-primary"> <i class="fas fa-user"></i> ENTRADA</button>
+                    </div>
                 </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-danger" data-dismiss="modal"> <i class="fas fa-sign-out-alt"></i> SALIDA</button>
-                    <button type="button" class="btn btn-primary"> <i class="fas fa-user"></i> ENTRADA</button>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>
@@ -135,6 +143,7 @@
                     } 
                     else 
                     {
+                        $('#user_id').val(response.data.user_id);
                         $('#document_number').val(response.data.document_number);
                         $('#first_name').val(response.data.first_name);
                         $('#last_name').val(response.data.last_name);
@@ -152,6 +161,10 @@
                     console.error(error);
                 }
             });
+        });
+
+        $('#entry').on('click', function() {
+            $('#markings').submit();
         });
     });
 
