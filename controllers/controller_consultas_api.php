@@ -41,11 +41,23 @@ class ExtraerDatos extends ConsultasDB
 	// DETALLE DE EMPLEADOS SELECICONADA SEGUN ID
 	function get_employee_by_id($idu)
 	{
-		$sql = "
-			SELECT 
-				* 
+		$sql = 
+			"SELECT 
+				*,
+				c.name as charge_name,
+				d.name as department_name 
 			FROM 
-				ac_employees 
+				ac_employees e
+
+			INNER JOIN
+				ac_charges c
+			ON
+				c.id = e.id_charges
+
+			INNER JOIN
+				ac_departments d
+			ON
+				d.id = e.id_departments
 			WHERE 
 				user_id=$idu ";
 

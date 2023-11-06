@@ -65,11 +65,16 @@
                 data: JSON.stringify({ action: 'getEmployeeByID', qrCode: qr }),
                 contentType: 'application/json',
                 success: function(response) {
-                    // Manejas la respuesta del servidor aquí
-                    console.log(response);
+                    console.log(response.success);
+                    if (response.success == false || response.success == null) 
+                    {
+                        $('#response-container').html('<div class="alert alert-danger" role="alert">Empleado no se ecnuentra en la base de datos, <b>Consulte con el administrador</b></div>');
+                    } 
+                    else 
+                    {
+                    }
                 },
                 error: function(xhr, status, error) {
-                    // Manejas los errores aquí
                     console.error(error);
                 }
             });

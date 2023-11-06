@@ -43,13 +43,15 @@ class EmpleadosAPI {
 
     function getEmployeeByID($input) 
     {
-        //Ejecutar el metodo de get_employee_by_id
         $idu = $input['qrCode'];
-        $consulta = new ExtraerDatos();
-        $lista = $consulta->get_employee_by_id($idu);
-        $response = array('success' => true, 'message' => 'Empleado encontrado', 'data' => $lista);
+        $sql = new ExtraerDatos();
+        $result = $sql->get_employee_by_id($idu);
+        $response = array('success' => true, 'message' => 'Empleado encontrado', 'data' => $result);
+        if (empty($result)) 
+        {
+            $response = array('success' => false, 'message' => 'Empleado no encontrado');
+        }
 
-        
         return $response;
     }
 
