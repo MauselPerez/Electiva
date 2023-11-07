@@ -94,9 +94,8 @@ class ExtraerDatos extends ConsultasDB
 
 	function insert_entry($user_id)
 	{
-		$sql = "INSERT INTO 
-					ac_markings 
-						(id_employee, entry_date) 
+		$sql = "INSERT INTO ac_markings 
+					(id_employee, entry_date) 
 				VALUES 
 					($user_id, NOW())";
 				
