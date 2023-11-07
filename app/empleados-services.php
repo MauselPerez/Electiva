@@ -3,7 +3,8 @@ include "../controllers/controller_consultas_api.php";
 
 class EmpleadosAPI {
 
-    function handleRequest() {
+    function handleRequest() 
+    {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
             $input = json_decode(file_get_contents("php://input"), true);
@@ -34,8 +35,8 @@ class EmpleadosAPI {
         {
             case 'getEmployeeByID':
                 return $this->getEmployeeByID($input);
-            case 'otraAccion':
-                return $this->otraAccion($input);
+            case 'InsertMarking':
+                return $this->InsertMarking($input);
             default:
                 return array('success' => false, 'message' => 'Acción no válida');
         }
@@ -59,10 +60,21 @@ class EmpleadosAPI {
         return $response;
     }
 
-    function otraAccion($input) 
+    function InsertMarking($input) 
     {
-        // Lógica para la acción otraAccion
-        $response = array('success' => true, 'message' => 'Otra accion');
+        $user_id = $input['user_id'];
+        $sql = new ExtraerDatos();
+        $result = $sql->insert_entry($user_id);
+
+        if (empty($result)) 
+        {
+            $response = array('success' => false, 'message' => 'Empleado no encontrado');
+        }
+        else 
+        {
+            $response = array('success' => true, 'message' => 'Empleado encontrado', 'data' => $result);
+        }
+
         return $response;
     }
 }

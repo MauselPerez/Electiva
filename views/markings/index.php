@@ -14,11 +14,11 @@
 <body class="hold-transition lockscreen">
 <div class="lockscreen-wrapper">
 <?php
-    if (isset($_POST) && !empty($_POST)) 
+    /*if (isset($_POST) && !empty($_POST)) 
     {
         echo '<pre>'; print_r($_POST); echo '</pre>';
         die("Sirve");
-    }
+    }*/
 ?>
 
     <div class="lockscreen-logo">
@@ -56,7 +56,8 @@
     <!--SI EL EMPLEADO EXISTE -->
     <div class="modal fade" id="employee">
         <div class="modal-dialog modal-lg">
-            <form id="markings" name="markings" method="POST" action="index.php">
+            <!--<form id="markings" name="markings" method="POST" action="index.php">-->
+            <form id="markings">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h4 class="modal-title">Información del empleado</h4>
@@ -138,7 +139,6 @@
                     data: JSON.stringify({ action: 'getEmployeeByID', qrCode: qr }),
                     contentType: 'application/json',
                     success: function(response) {
-                        console.log(response);
                         if (response.success == false || response.success == null) 
                         {
                             $('#response-container').html('<div class="alert alert-danger alert-dismissible" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-hidden="true"> &times;</button> <h5><i class="icon fas fa-ban"></i>No existe</h5> Empleado no se ecnuentra en la base de datos, <b>Consulte con el administrador</b></div>');
@@ -166,8 +166,27 @@
             }
         });
 
-        $('#entry').on('click', function() {
-            $('#markings').submit();
+        $('#entry').on('click', function(e) {
+            //$('#markings').submit();
+            var user_id = $('#user_id').val();
+
+            $.ajax({
+                url: '../../app/empleados-services.php',
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({ action: 'InsertMarking', user_id: user_id }),
+                contentType: 'application/json',
+                success: function(response) {
+                    console.log(response);
+                    //Marcación registrada
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+                }
+            });
+
+            e.preventDefault();
+
         });
     });
 
