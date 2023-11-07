@@ -46,10 +46,14 @@ class EmpleadosAPI {
         $idu = $input['qrCode'];
         $sql = new ExtraerDatos();
         $result = $sql->get_employee_by_id($idu);
-        $response = array('success' => true, 'message' => 'Empleado encontrado', 'data' => $result);
+
         if (empty($result)) 
         {
             $response = array('success' => false, 'message' => 'Empleado no encontrado');
+        }
+        else 
+        {
+            $response = array('success' => true, 'message' => 'Empleado encontrado', 'data' => $result);
         }
 
         return $response;

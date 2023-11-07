@@ -128,39 +128,42 @@
 
         $('#qr').on('input', function() {
             var qr = $('#qr').val();
-            // Realiza la solicitud AJAX solo si el valor del input no está vacío
-            $.ajax({
-                url: '../../app/empleados-services.php',
-                type: 'POST',
-                dataType: 'json',
-                data: JSON.stringify({ action: 'getEmployeeByID', qrCode: qr }),
-                contentType: 'application/json',
-                success: function(response) {
-                    console.log(response.data);
-                    if (response.success == false || response.success == null) 
-                    {
-                        $('#response-container').html('<div class="alert alert-danger alert-dismissible" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-hidden="true"> &times;</button> <h5><i class="icon fas fa-ban"></i>No existe</h5> Empleado no se ecnuentra en la base de datos, <b>Consulte con el administrador</b></div>');
-                    } 
-                    else 
-                    {
-                        $('#user_id').val(response.data.user_id);
-                        $('#document_number').val(response.data.document_number);
-                        $('#first_name').val(response.data.first_name);
-                        $('#last_name').val(response.data.last_name);
-                        $('#age').val(response.data.age);
-                        $('#phone').val(response.data.phone);
-                        $('#email').val(response.data.email);
-                        $('#charge').val(response.data.charge_name);
-                        $('#department').val(response.data.department_name);
-                        $('#user_image').attr('src', response.data.img);
-
-                        $('#employee').modal('show');
+            if (qr.length != 0) 
+            {
+                // Realiza la solicitud AJAX solo si el valor del input no está vacío
+                $.ajax({
+                    url: '../../app/empleados-services.php',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: JSON.stringify({ action: 'getEmployeeByID', qrCode: qr }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        console.log(response);
+                        if (response.success == false || response.success == null) 
+                        {
+                            $('#response-container').html('<div class="alert alert-danger alert-dismissible" role="alert"> <button type="button" class="close" data-dismiss="alert" aria-hidden="true"> &times;</button> <h5><i class="icon fas fa-ban"></i>No existe</h5> Empleado no se ecnuentra en la base de datos, <b>Consulte con el administrador</b></div>');
+                        } 
+                        else 
+                        {
+                            $('#user_id').val(response.data.user_id);
+                            $('#document_number').val(response.data.document_number);
+                            $('#first_name').val(response.data.first_name);
+                            $('#last_name').val(response.data.last_name);
+                            $('#age').val(response.data.age);
+                            $('#phone').val(response.data.phone);
+                            $('#email').val(response.data.email);
+                            $('#charge').val(response.data.charge_name);
+                            $('#department').val(response.data.department_name);
+                            $('#user_image').attr('src', response.data.img);
+    
+                            $('#employee').modal('show');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error(error);
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error(error);
-                }
-            });
+                });
+            }
         });
 
         $('#entry').on('click', function() {
