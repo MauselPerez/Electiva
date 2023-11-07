@@ -12,6 +12,19 @@ class ConsultasDB extends DBConfig {
 		$this->close();		
 		return $records;				
 	}
+
+	function Operaciones($sql)
+	{
+		$obj = new DBConfig();
+
+		$obj->config();
+		$obj->conexion();
+
+		$records = $obj->Operaciones($sql);
+
+		$obj->close();
+		return $records;
+	}
 }
 
 
@@ -82,26 +95,12 @@ class ExtraerDatos extends ConsultasDB
 	function insert_entry($user_id)
 	{
 		$sql = "INSERT INTO 
-				ac_markings 
-				(id_employee, entry_date) 
-			VALUES 
-				($user_id, NOW())";
+					ac_markings 
+						(id_employee, entry_date) 
+				VALUES 
+					($user_id, NOW())";
 				
-		$obj = new DBConfig();
-		$obj->config();
-		$obj->conexion();
-		$records = $obj->Operaciones($sql);
-
-		if ($records) 
-		{
-            $response = array('success' => true, 'message' => 'Registro de entrada insertado correctamente', 'data' => $records);
-        } 
-		else 
-		{
-            $response = array('success' => false, 'message' => 'Error al insertar el registro de entrada', 'data' => $sql);
-        }
-
-        return $response;
+		return $this->Operaciones($sql);
 	}
 
 }//fin CLASE
