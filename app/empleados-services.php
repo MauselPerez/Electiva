@@ -68,11 +68,11 @@ class EmpleadosAPI {
 
         if (empty($result)) 
         {
-            $response = array('success' => false, 'message' => 'Empleado no encontrado');
+            $response = array('success' => false, 'message' => 'No se inserto el registro de marcaciones');
         }
         else 
         {
-            $response = array('success' => true, 'message' => 'Empleado encontrado', 'data' => $result);
+            $response = array('success' => true, 'message' => 'Registrada la marcación correctamente', 'data' => $result);
         }
 
         return $response;

@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <link rel="stylesheet" href="../../templates/AdminLTE-3.0.5/dist/css/adminlte.min.css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
 </head>
 <body class="hold-transition lockscreen">
 <div class="lockscreen-wrapper">
@@ -123,6 +125,8 @@
 
 <script src="../../templates/AdminLTE-3.0.5/plugins/jquery/jquery.min.js"></script>
 <script src="../../templates/AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 <script>
     $(document).ready(function () {
         $('#qr').focus();
@@ -179,9 +183,22 @@
                 success: function(response) {
                     console.log(response);
                     //Marcación registrada
+                    if (response.success == true) 
+                    {
+                        toastr.success(response.message);
+                        $('#employee').modal('hide');
+                        $('#qr').val('');
+                        $('#qr').focus();
+                    } 
+                    else 
+                    {
+                        toastr.error(response.message);
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error(error);
+
+                    toastr.error('Error al registrar la marcación');
                 }
             });
 
