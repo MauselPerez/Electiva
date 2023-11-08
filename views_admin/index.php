@@ -1,16 +1,28 @@
 <?php
-// Define el título de la página
-$title = "Página de Administrador";
+// Inicia la sesión
+session_start();
 
-// Inicia el búfer de salida
+include "../public/includes/mistakes.php";
+see_errors();
+
+// Define el título de la página
+$title = "Página de Usuario";
+
+// Contenido específico de la página
 ob_start();
 ?>
-<!-- AQUI VA EL CONTENIDO DE LA PÁGINA -->
-Hola
 
-<!-- AQUI TERMINA EL CONTENIDO DE LA PÁGINA -->
+
+<div class="row">
+    <div class="col-md-12">
+        <h6 style="color: red;">Reporte de Marcaciones</h6>
+        <hr>
+    </div>
+</div>
+
+
 <?php
-// Captura la salida en una variable
+// Captura el contenido en una variable
 $content = ob_get_clean();
 
 // Incluye la plantilla base

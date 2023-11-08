@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -40,9 +41,9 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <div class="container-fluid">
-                <div class="row mb-2" style="background-color: white; padding: 15px; border-radius: 10px;">
+                <div class="row mb-2" style="background-color: white; padding: 10px; border-radius: 10px;">
                     <div class="col-sm-6">
-                        <h1>¡Bienvenido!</h1>
+                        <h5>¡Bienvenido! <?php echo $_SESSION['name']; ?></h5>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">

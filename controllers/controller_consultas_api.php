@@ -80,18 +80,33 @@ class ExtraerDatos extends ConsultasDB
 	//VALIDAR EL INICIO DE SESION
 	function users_validate($user)
 	{
-		$sql = "
-			SELECT 
-				* 
-			FROM 
-				users 
-			WHERE 
-				user='$user' ";
+		$sql = "SELECT 
+					users.id,
+					users.user,
+					users.password,
+					users.is_active,
+					e.img,
+					e.user_id,
+					e.document_number,
+					CONCAT(e.first_name,' ',e.last_name) AS name_employee,
+					e.id_charges,
+					e.id_departments
+					
+				FROM 
+					users 
+
+				INNER JOIN
+					ac_employees e
+						ON e.user_id = users.id	
+						
+				WHERE 
+					user='$user'";
 				
 		$lista = $this->consulta_generales($sql);	
 		return $lista;
 	}
 
+	//REGISTRAR ENTRADA DEL EMPLEADO
 	function insert_entry($user_id)
 	{
 		$sql = "INSERT INTO ac_markings 
