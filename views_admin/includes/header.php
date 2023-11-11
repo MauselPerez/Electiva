@@ -46,7 +46,7 @@
       </a>
       <div class="dropdown-divider"></div>
       <!--<a href="../templates/login.php" class="dropdown-item dropdown-footer">Cerrar Sesión</a>-->
-      <a type="button" id="close" name="close" class="dropdown-item dropdown-footer">Cerrar Sesión</a>
+      <a type="#" id="close" name="close" class="dropdown-item dropdown-footer">Cerrar Sesión</a>
     </div>
   </li>
 </ul>

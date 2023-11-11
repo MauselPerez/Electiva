@@ -14,7 +14,7 @@ ob_start();
                 <h6 class="card-title" style="color: red;"> Reporte de Marcaciones </h6>
             </div>
             <div class="card-body">
-                <table id="markings" class="table table-bordered table-striped">
+                <table id="markings" class="data-table table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Cedula</th>
@@ -66,11 +66,3 @@ $content = ob_get_clean();
 // Incluye la plantilla base
 include '../templates/base.php';
 ?>
-<script>
-    $(document).ready(function () {
-        $("#markings").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-        });
-    });
-</script>

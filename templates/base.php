@@ -1,4 +1,13 @@
-
+<?php
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+if (isset($_POST['action']) && $_POST['action'] === 'cerrar_sesion') {
+    session_destroy();
+    echo json_encode(['success' => true]);
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -100,16 +109,27 @@
 <script src="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 
 <script>
-    $("#close").click(function(){
-<?php
-        if (isset($_SESSION)) 
-        {
-            echo 'console.log("Cerrar sesion");';
-            session_destroy();
-        }
-?>
-        window.location.href = "../templates/login.php";
-    });
+    $(document).ready(function () {
+        $(".data-table").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
+
+        $('#close').on('click', function () {
+            $.ajax({
+                url: '../templates/base.php', 
+                type: 'POST',
+                data: { action: 'cerrar_sesion' }, 
+                dataType: 'json',
+                success: function (response) {
+                    window.location.href = '../templates/login.php';
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
+                });
+            });
+        });
 </script>
 </body>
 </html>
