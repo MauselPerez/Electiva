@@ -1,5 +1,8 @@
 <?php 
-    include "../controllers/controller_consultas_backend.php";
+    include "../app/login-services.php";
+    include "public/includes/google_auth.php";
+
+    $objAPI = new loginAPI(); //Crear Objeto de la clase loginAPI
 ?>
 <!DOCTYPE html>
 <html>
@@ -12,6 +15,9 @@
     <link rel="shortcut icon" href="../imgs/login.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/toastr/toastr.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- icheck bootstrap -->
@@ -20,74 +26,40 @@
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/dist/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 </head>
 <body class="hold-transition login-page">
 
 <?php 
     if (isset($_POST['user']) && isset($_POST['password'])) 
     {
-        $obj = new ExtraerDatos();
-        $user = array();
-
-        $user = $obj->users_validate($_POST['user']);
-
-        if (!empty($user)) 
-        {
-            if ($user[0]['password'] == sha1($_POST['password'])) 
-            {
-                header("Location: index.php");
-            }
-            else 
-            {
-                echo "<script>alert('Contraseña incorrecta')</script>";
-            }
-        }
-        else 
-        {
-            echo "<script>alert('El usuario no se encuentra registrado o no es válido')</script>";
-        }
+        $objAPI->validate_users();
     }
 
     if (isset($_GET['code'])) 
     {
         $code = $_GET['code'];
+        validate_google_account($code);
+    }
 
-        // Intercambia el código por un token de acceso usando la API de Google
-        $token_url = 'https://accounts.google.com/o/oauth2/token';
-        $params = array(
-            'code' => $code,
-            'client_id' => '826238057510-s32b1slhd3e2svbus343gm8o7sdkd8em.apps.googleusercontent.com',
-            'client_secret' => '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',
-            'redirect_uri' => 'http://localhost/web_electiva/views_admin/login.php',
-            'grant_type' => 'authorization_code'
-        );
-
-        $curl = curl_init($token_url);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $params);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($curl);
-        curl_close($curl);
-
-        $token_data = json_decode($response, true);
-
-        // Verifica si se obtuvo un token de acceso
-        if (isset($token_data['access_token'])) 
+    if (isset($_GET['error'])) 
+    {
+        $error = $_GET['error'];
+        if ($error == 1) 
         {
-            // El usuario ha iniciado sesión correctamente, redirígelo a starter.php
-            header("Location: starter.php");
-            exit();
-        } 
-        else 
+            echo "<script>toastr.error('Contraseña incorrecta', 'Error');</script>";
+        }
+        else if ($error == 2) 
         {
-            // Ocurrió un error al obtener el token de acceso, maneja el error aquí
-            echo "Error al iniciar sesión con Google.";
+            echo "<script>toastr.error('Usuario no existe', 'Error');</script>";
         }
     }
 ?>
 <div class="login-box">
     <div class="login-logo">
-        <a href="../../index2.html">
+        <a href="index2.html">
             <b>Iniciar Sesión <span class="fas fa-user"></span></b>
         </a>
     </div>
@@ -142,11 +114,11 @@
             <!-- /.social-auth-links -->
 
             <p class="mb-1" style="float: left;">
-                <a href="forgot-password.php">Olvidé mi contraseña</a>
+                <a href="../views_admin/forgot-password.php">Olvidé mi contraseña</a>
             </p>
-            <p class="mb-0" style="float: right;">
+            <!--<p class="mb-0" style="float: right;">
                 <a href="register.php" class="text-center">Registrarme</a>
-            </p>
+            </p>-->
         </div>
         <!-- /.login-card-body -->
     </div>
@@ -154,11 +126,12 @@
 <!-- /.login-box -->
 
 <!-- jQuery -->
-<script src="../templates/AdminLTE-3.0.5/plugins/jquery/jquery.min.js"></script>
+<script src="AdminLTE-3.0.5/plugins/jquery/jquery.min.js"></script>
 <!-- Bootstrap 4 -->
-<script src="../templates/AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="AdminLTE-3.0.5/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- AdminLTE App -->
-<script src="../templates/AdminLTE-3.0.5/dist/js/adminlte.min.js"></script>
-
+<script src="AdminLTE-3.0.5/dist/js/adminlte.min.js"></script>
+<script src="AdminLTE-3.0.5/plugins/sweetalert2/sweetalert2.min.js"></script>
+<!-- Toastr -->
 </body>
 </html>
