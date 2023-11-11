@@ -128,19 +128,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
-    $(document).ready(function () {
-        $('#qr').focus();
+    $(document).ready(function () { // Cuando el documento esté cargado
+        $('#qr').focus(); // Poner el foco en el input
 
         $('#qr').on('input', function() {
-            var qr = $('#qr').val();
+            var qr = $('#qr').val(); //Guardo lo que digiten en el input
             if (qr.length != 0) 
             {
                 // Realiza la solicitud AJAX solo si el valor del input no está vacío
                 $.ajax({
-                    url: '../../app/empleados-services.php',
+                    url: '../../app/empleados-services.php', //Ruta donde vas a mandar los datos
                     type: 'POST',
                     dataType: 'json',
-                    data: JSON.stringify({ action: 'getEmployeeByID', qrCode: qr }),
+                    data: JSON.stringify({ action: 'getEmployeeByID', qrCode: qr }), //Datos que vas a mandar al servidor
                     contentType: 'application/json',
                     success: function(response) {
                         if (response.success == false || response.success == null) 

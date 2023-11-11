@@ -2,7 +2,7 @@
     include "../app/login-services.php";
     include "public/includes/google_auth.php";
 
-    $objAPI = new loginAPI();
+    $objAPI = new loginAPI(); //Crear Objeto de la clase loginAPI
 ?>
 <!DOCTYPE html>
 <html>
