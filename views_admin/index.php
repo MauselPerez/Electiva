@@ -1,18 +1,12 @@
 <?php
-// Inicia la sesión
 session_start();
-
 include "../public/includes/mistakes.php";
 see_errors();
-
 // Define el título de la página
 $title = "Página de Usuario";
-
 // Contenido específico de la página
 ob_start();
 ?>
-
-
 <div class="row">
     <div class="col-md-12">
         <div class="card">

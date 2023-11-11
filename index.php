@@ -7,6 +7,7 @@
         exit;
     }
 
+
     /*$requestUri = $_SERVER['REQUEST_URI'];
     echo '<pre>'; print_r($requestUri); echo '</pre>';
     if ($requestUri === '/views_admin/index_admin') 

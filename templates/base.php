@@ -4,6 +4,7 @@
 <head>
 	<title><?php echo $title; ?></title>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" href="../imgs/login.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css">
     <!-- Ionicons -->
@@ -98,5 +99,17 @@
 <script src="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
 
+<script>
+    $("#close").click(function(){
+<?php
+        if (isset($_SESSION)) 
+        {
+            echo 'console.log("Cerrar sesion");';
+            session_destroy();
+        }
+?>
+        window.location.href = "../templates/login.php";
+    });
+</script>
 </body>
 </html>
