@@ -24,11 +24,11 @@
     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
 
       <!-- MENU MEDICINAS -->
-      <li class="nav-item has-treeview">
+      <!--<li class="nav-item has-treeview">
         <a href="#" class="nav-link ">
           <i class="nav-icon fas fa-notes-medical"></i> 
           <p>
-            MEDICINAS
+            Empleados
             <i class="right fas fa-angle-left"></i>
           </p>
         </a>
@@ -46,10 +46,10 @@
             </a>
           </li>
         </ul>
-      </li> 
+      </li> -->
 
       <!-- MENU CON ENFERMOS -->
-      <li class="nav-item has-treeview">
+      <!--<li class="nav-item has-treeview">
         <a href="#" class="nav-link ">
           <i class="nav-icon fas fa-paw"></i>
           <p>
@@ -71,14 +71,22 @@
             </a>
           </li>
         </ul>
-      </li> 
+      </li> -->
 
       <!-- Menu para las solicitudes -->
       <li class="nav-item">
-        <a href="solicitudes.php" class="nav-link">
-          <i class="nav-icon fas fa-clipboard-list"></i>
+        <a href="index.php" class="nav-link">
+          <i class="nav-icon fas fa-sign-out-alt"></i>
           <p>
-            SOLICITUDES
+            MARCACIONES
+          </p>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-users"></i>
+          <p>
+            EMPLEADOS
           </p>
         </a>
       </li>

@@ -1,11 +1,14 @@
 <?php
 session_start();
-include "../public/includes/mistakes.php";
-see_errors();
+include "../app/markings-services.php";
+$objAPI = new MarkingsAPI();
 // Define el título de la página
-$title = "Página de Usuario";
+$title = "Reporte de marcaciones";
 // Contenido específico de la página
 ob_start();
+?>
+<?php 
+$markings = $objAPI->get_all_markings();
 ?>
 <div class="row">
     <div class="col-md-12">
@@ -24,22 +27,37 @@ ob_start();
                             <th>Departamento</th>
                             <th>Email</th>
                             <th>Fecha/Hora entrada</th>
-                            <th>Fecha/Hora entrada</th>
+                            <th>Fecha/Hora salida</th>
                             <th>Entrada/Salida</th>
                         </tr>
                     </thead>
                     <tbody>
+<?php
+                    foreach ($markings as $employee) 
+                    {
+                        if ($employee['state'] == 'Entrada') 
+                        {
+                            $employee['state'] = '<span class="badge badge-success">Entrada</span>';
+                        }
+                        else 
+                        {
+                            $employee['state'] = '<span class="badge badge-danger">Salida</span>';
+                        }
+?>
                         <tr>
-                            <td>123456789</td>
-                            <td>Nombre</td>
-                            <td>Apellido</td>
-                            <td>Cargo</td>
-                            <td>Departamento</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td><?=$employee['citizen_card']; ?></td>
+                            <td><?=$employee['name_employee']; ?></td>
+                            <td><?=$employee['last_name_employee']; ?></td>
+                            <td><?=$employee['name_charge']; ?></td>
+                            <td><?=$employee['name_department']; ?></td>
+                            <td><?=$employee['electronic_mail']; ?></td>
+                            <td><?=$employee['entry']; ?></td>
+                            <td><?=$employee['exit']; ?></td>
+                            <td style="text-align: center;"><?=$employee['state']; ?></td>
                         </tr>
+<?php
+                    }
+?>
                     </tbody>
                     <tfoot>
                         <tr>

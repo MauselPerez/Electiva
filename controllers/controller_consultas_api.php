@@ -50,6 +50,7 @@ class ExtraerDatos extends ConsultasDB
 		$lista = $this->consulta_generales($sql);	
 		return $lista;
 	}
+
 	// DETALLE DE EMPLEADOS SELECICONADA SEGUN ID
 	function get_employee_by_id($idu)
 	{
@@ -115,6 +116,37 @@ class ExtraerDatos extends ConsultasDB
 					($user_id, NOW())";
 				
 		return $this->Operaciones($sql);
+	}
+
+	//MUESTRA LISTADO DE EMPLEADOS
+	function get_all_markings()
+	{
+		$sql = 
+			"SELECT
+				m.*,
+				e.document_number,
+				e.first_name,
+				e.last_name,
+				c.name AS charge,
+				d.name AS department,
+				e.email,
+				IF (m.departure_date IS NOT NULL, 'Salida', 'Entrada') AS status
+			FROM
+				ac_markings m
+				
+			INNER JOIN
+				ac_employees e
+					ON e.id = m.id_employee
+					
+			INNER JOIN
+				ac_charges c
+					ON c.id = e.id_charges
+					
+			INNER JOIN
+				ac_departments d
+					ON d.id = e.id_departments";
+		$lista = $this->consulta_generales($sql);	
+		return $lista;
 	}
 
 }//fin CLASE
