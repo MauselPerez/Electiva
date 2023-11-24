@@ -28,21 +28,21 @@
         <a href="#" class="nav-link ">
           <i class="nav-icon fas fa-notes-medical"></i> 
           <p>
-            MEDICINAS
+            Empleados
             <i class="right fas fa-angle-left"></i>
           </p>
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="clientes_registrar.php" class="nav-link">
+            <a href="create_employees.php" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
-              <p>Listado</p>
+              <p>Crear Empleado</p>
             </a>
           </li>
           <li class="nav-item">
-            <a href="medicinas_registrar.php" class="nav-link">
+            <a href="list_employees.php" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
-              <p>Nuevo Medicamento</p>
+              <p>Listado de Empleados</p>
             </a>
           </li>
         </ul>
@@ -53,13 +53,13 @@
         <a href="#" class="nav-link ">
           <i class="nav-icon fas fa-paw"></i>
           <p>
-            ENFERMOS
+            Marcaciones
             <i class="right fas fa-angle-left"></i>
           </p>
         </a>
         <ul class="nav nav-treeview">
           <li class="nav-item">
-            <a href="clientes_registrar.php" class="nav-link">
+            <a href="../views\markings\index.php" class="nav-link">
               <i class="far fa-circle nav-icon"></i>
               <p>Listado</p>
             </a>

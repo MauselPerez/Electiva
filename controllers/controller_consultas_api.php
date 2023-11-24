@@ -117,6 +117,59 @@ class ExtraerDatos extends ConsultasDB
 		return $this->Operaciones($sql);
 	}
 
+	//REGISTRAR CREAR USUARIO EMPLEADO
+	function insert_user($user,$pass)
+	{
+		$sql = "INSERT INTO users
+					(user,password) 
+				VALUES 
+					($user, $pass)";
+				
+		return $this->Operaciones($sql);
+	}
+
+	//REGISTRAR CREAR EMPLEADO
+	function insert_employees($document_number,$first_name,$last_name,$age,$phone,$img,$admission_date)
+	{
+		$sql = "INSERT INTO ac_employees 
+					(document_number, first_name, last_name, age, phone,img,admission_date,) 
+				VALUES 
+					($document_number,$first_name,$last_name,$age,$phone,$img,$admission_date)";
+				
+		return $this->Operaciones($sql);
+	}
+
+	 //MUESTRA SELECT DEPARTMENT
+	 function get_all_department($start=0, $regsCant = 0)
+	 {
+		 $sql = "
+			 SELECT 
+				 * 
+			 FROM 
+			 ac_departments";
+ 
+		 if ($regsCant > 0 )
+			 $sql = "SELECT * from ac_departments $start,$regsCant";
+		 $lista = $this->consulta_generales($sql);	
+		 return $lista;
+	 }
+
+	  //MUESTRA SELECT CARGO
+	function get_all_charges($start=0, $regsCant = 0)
+	{
+		$sql = "
+			SELECT 
+				* 
+			FROM 
+				ac_charges";
+
+		if ($regsCant > 0 )
+			$sql = "SELECT * from ac_charges $start,$regsCant";
+		$lista = $this->consulta_generales($sql);	
+		return $lista;
+	}
+	
+
 }//fin CLASE
 
 ?>
