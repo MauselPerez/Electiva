@@ -157,6 +157,30 @@ class ExtraerDatos extends ConsultasDB
 		return $lista;
 	}
 
+	//LISTADO DE CARGOS
+	function get_all_charges()
+	{
+		$sql = 
+			"SELECT
+				*
+			FROM
+				ac_charges";
+		$lista = $this->consulta_generales($sql);	
+		return $lista;
+	}
+
+	//LISTADO DE DEPARTAMENTOS
+	function get_all_departments()
+	{
+		$sql = 
+			"SELECT
+				*
+			FROM
+				ac_departments";
+		$lista = $this->consulta_generales($sql);	
+		return $lista;
+	}
+
 }//fin CLASE
 
 ?>
