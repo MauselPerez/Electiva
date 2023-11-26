@@ -118,9 +118,15 @@ class ExtraerDatos extends ConsultasDB
 		return $this->Operaciones($sql);
 	}
 
-	//MUESTRA LISTADO DE EMPLEADOS
+	//MUESTRA LISTADO DE MARCACIONES
 	function get_all_markings()
 	{
+		$scope = '';
+		if ($_SESSION['charges'] == 3 || $_SESSION['charges'] == 4) 
+		{
+			$scope = "WHERE m.id_employee = ".$_SESSION['id'];
+		}
+
 		$sql = 
 			"SELECT
 				m.*,
@@ -144,7 +150,9 @@ class ExtraerDatos extends ConsultasDB
 					
 			INNER JOIN
 				ac_departments d
-					ON d.id = e.id_departments";
+					ON d.id = e.id_departments
+
+			$scope ";
 		$lista = $this->consulta_generales($sql);	
 		return $lista;
 	}
