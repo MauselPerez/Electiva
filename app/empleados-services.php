@@ -5,10 +5,11 @@ class EmpleadosAPI {
 
     function handleRequest() 
     {
+        echo '<pre>'; print_r($_SERVER['REQUEST_METHOD']); echo '</pre>'; die;
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
             $input = json_decode(file_get_contents("php://input"), true);
-
+            echo '<pre>'; var_dump($input); echo '</pre>'; die;
             if (isset($input['action'])) 
             {
                 $action = $input['action'];
@@ -37,8 +38,8 @@ class EmpleadosAPI {
                 return $this->getEmployeeByID($input);
             case 'InsertMarking':
                 return $this->InsertMarking($input);
-            default:
-                return array('success' => false, 'message' => 'Acción no válida');
+            case 'InsertEmployees':
+                return $this->insert_user($input);
         }
     }
 
@@ -77,6 +78,53 @@ class EmpleadosAPI {
 
         return $response;
     }
+
+    function get_all_department(){
+        $Objt= new ExtraerDatos();
+        $data = [];
+        $department = [];
+        $data = $Objt->get_all_department();
+        
+        foreach ($data as $d) {
+            $item = array(
+                "cod" => $d['id'],
+                "nombre" => $d['name']
+            );
+            array_push($department, $item);
+        }
+         return ($department);
+    }
+
+
+    function get_all_charges(){
+        $Objt= new ExtraerDatos();
+        $data = [];
+        $charges = [];
+        $data = $Objt->get_all_charges();
+        
+        foreach ($data as $d) {
+            $item = array(
+                "cod" => $d['id'],
+                "nombre" => $d['name']
+            );
+            array_push($charges, $item);
+        }
+         return ($charges);
+    }
+
+    function insert_user($user){
+        echo '<pre>'; print_r($user); echo '</pre>'; die;
+        $Objt= new ExtraerDatos();
+        $data = $Objt->insert_user();  
+         return ($data);
+    }
+
+    function insert_employees(){
+        $Objt= new ExtraerDatos(); 
+        $data = $Objt->insert_employees();          
+        return ($data);
+    }
+
 }
 
 // Instancia la clase y maneja la solicitud
