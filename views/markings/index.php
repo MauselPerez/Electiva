@@ -114,7 +114,7 @@
                         </div>
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-danger" data-dismiss="modal"> <i class="fas fa-sign-out-alt"></i> SALIDA</button>
+                        <button id="exit" class="btn btn-danger"> <i class="fas fa-sign-out-alt"></i> SALIDA</button>
                         <button id="entry" class="btn btn-primary"> <i class="fas fa-user"></i> ENTRADA</button>
                     </div>
                 </div>
@@ -170,6 +170,7 @@
             }
         });
 
+        //INSERTAR ENTRADA DEL EMPLEADO
         $('#entry').on('click', function(e) {
             //$('#markings').submit();
             var user_id = $('#user_id').val();
@@ -179,6 +180,43 @@
                 type: 'POST',
                 dataType: 'json',
                 data: JSON.stringify({ action: 'InsertMarking', user_id: user_id }),
+                contentType: 'application/json',
+                success: function(response) {
+                    console.log(response);
+                    //Marcación registrada
+                    if (response.success == true) 
+                    {
+                        toastr.success(response.message);
+                        $('#employee').modal('hide');
+                        $('#qr').val('');
+                        $('#qr').focus();
+                    } 
+                    else 
+                    {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error(error);
+
+                    toastr.error('Error al registrar la marcación');
+                }
+            });
+
+            e.preventDefault();
+
+        });
+
+        //INSERTAR SALIDA DEL EMPLEADO
+        $('#exit').on('click', function(e) {
+            //$('#markings').submit();
+            var user_id = $('#user_id').val();
+
+            $.ajax({
+                url: '../../app/empleados-services.php',
+                type: 'POST',
+                dataType: 'json',
+                data: JSON.stringify({ action: 'InsertExit', user_id: user_id }),
                 contentType: 'application/json',
                 success: function(response) {
                     console.log(response);

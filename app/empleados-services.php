@@ -36,6 +36,8 @@ class EmpleadosAPI {
                 return $this->getEmployeeByID($input);
             case 'InsertMarking':
                 return $this->InsertMarking($input);
+            case 'InsertExit':
+                return $this->InsertExit($input);
         }
     }
 
@@ -70,6 +72,24 @@ class EmpleadosAPI {
         else 
         {
             $response = array('success' => true, 'message' => 'Registrada la marcación correctamente', 'data' => $result);
+        }
+
+        return $response;
+    }
+
+    function InsertExit($input) 
+    {
+        $user_id = $input['user_id'];
+        $sql = new ExtraerDatos();
+        $result = $sql->insert_exit($user_id);
+
+        if (empty($result)) 
+        {
+            $response = array('success' => false, 'message' => 'No se inserto el registro de salida');
+        }
+        else 
+        {
+            $response = array('success' => true, 'message' => 'Registrada la marcación de salida correctamente', 'data' => $result);
         }
 
         return $response;

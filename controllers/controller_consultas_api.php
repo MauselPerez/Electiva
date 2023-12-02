@@ -120,6 +120,18 @@ class ExtraerDatos extends ConsultasDB
 		return $this->Operaciones($sql);
 	}
 
+	//REGISTRAR SALIDA DEL EMPLEADO
+	function insert_exit($user_id)
+	{
+		$sql = 
+			"UPDATE ac_markings
+			SET departure_date = NOW()
+			WHERE id_employee = $user_id";
+				
+		return $this->Operaciones($sql);
+	}
+
+
 	//MUESTRA LISTADO DE MARCACIONES
 	function get_all_markings()
 	{
