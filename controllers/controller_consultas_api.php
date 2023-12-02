@@ -39,8 +39,8 @@ class ExtraerDatos extends ConsultasDB
     //MUESTRA LISTADO DE EMPLEADOS
 	function get_all_employees($start=0, $regsCant = 0)
 	{
-		$sql = "
-			SELECT 
+		$sql = 
+			"SELECT 
 				* 
 			FROM 
 				ac_employees";
@@ -81,27 +81,28 @@ class ExtraerDatos extends ConsultasDB
 	//VALIDAR EL INICIO DE SESION
 	function users_validate($user)
 	{
-		$sql = "SELECT 
-					users.id,
-					users.user,
-					users.password,
-					users.is_active,
-					e.img,
-					e.user_id,
-					e.document_number,
-					CONCAT(e.first_name,' ',e.last_name) AS name_employee,
-					e.id_charges,
-					e.id_departments
-					
-				FROM 
-					users 
+		$sql = 
+			"SELECT 
+				users.id,
+				users.user,
+				users.password,
+				users.is_active,
+				e.img,
+				e.user_id,
+				e.document_number,
+				CONCAT(e.first_name,' ',e.last_name) AS name_employee,
+				e.id_charges,
+				e.id_departments
+				
+			FROM 
+				users 
 
-				INNER JOIN
-					ac_employees e
-						ON e.user_id = users.id	
-						
-				WHERE 
-					user='$user'";
+			INNER JOIN
+				ac_employees e
+					ON e.user_id = users.id	
+					
+			WHERE 
+				user='$user'";
 				
 		$lista = $this->consulta_generales($sql);	
 		return $lista;
@@ -110,10 +111,11 @@ class ExtraerDatos extends ConsultasDB
 	//REGISTRAR ENTRADA DEL EMPLEADO
 	function insert_entry($user_id)
 	{
-		$sql = "INSERT INTO ac_markings 
-					(id_employee, entry_date) 
-				VALUES 
-					($user_id, NOW())";
+		$sql = 
+			"INSERT INTO ac_markings 
+				(id_employee, entry_date) 
+			VALUES 
+				($user_id, NOW())";
 				
 		return $this->Operaciones($sql);
 	}
