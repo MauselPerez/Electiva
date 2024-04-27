@@ -118,6 +118,34 @@ class ExtraerDatos extends ConsultasDB
 		return $this->Operaciones($sql);
 	}
 
+	function insert_user($user, $password)
+	{
+		$password = hash('sha1', $password);
+		$sql = "INSERT INTO users (user, password) VALUES ('$user', '$password')";
+		$result = $this->Operaciones($sql);
+
+		if ($result) 
+		{
+			$sql = "SELECT id FROM users WHERE user = '$user'";
+			$result = $this->consulta_generales($sql);
+			return $result[0]['id'];
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+
+	function insert_employee($userId, $name, $lastname, $identification, $phone, $age, $email, $entryDate, $chargeId, $departmentId)
+	{
+		$sql = "INSERT INTO ac_employees (user_id, first_name, last_name, document_number, phone, age, email, admission_date, id_charges, id_departments) VALUES ('$userId', '$name', '$lastname', '$identification', '$phone', '$age', '$email', '$entryDate', '$chargeId', '$departmentId')";
+		$result = $this->Operaciones($sql);
+
+		return $result;
+	}
+
+
 	//MUESTRA LISTADO DE MARCACIONES
 	function get_all_markings()
 	{
@@ -179,6 +207,54 @@ class ExtraerDatos extends ConsultasDB
 				ac_departments";
 		$lista = $this->consulta_generales($sql);	
 		return $lista;
+	}
+
+
+	//TAREA DE GUETTE
+	function get_all_software()
+	{
+		$sql = 
+			"SELECT
+				*
+			FROM
+				software";
+		$lista = $this->consulta_generales($sql);	
+		return $lista;
+	}
+
+	//INSERTAR SOFTWARE
+	function insert_software($name, $systems, $developer, $requirements, $description, $price)
+	{
+		$sql = "INSERT INTO software 
+					(name, systems, developer, requirements, description, price) 
+				VALUES 
+					('$name', '$systems', '$developer', '$requirements', '$description', $price)";
+		return $this->Operaciones($sql);
+	}
+
+	//CONSULTAR SOFTWARE
+	function get_software_by_id($id)
+	{
+		$sql = 
+			"SELECT
+				*
+			FROM
+				software
+			WHERE
+				cod = $id";
+		$lista = $this->consulta_generales($sql);	
+		return $lista;
+	}
+
+	//ELIMINAR SOFTWARE
+	function delete_software($id)
+	{
+		$sql = 
+			"DELETE FROM
+				software
+			WHERE
+				cod = $id";
+		return $this->Operaciones($sql);
 	}
 
 }//fin CLASE

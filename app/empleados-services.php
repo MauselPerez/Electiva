@@ -8,6 +8,11 @@ class EmpleadosAPI {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
             $input = json_decode(file_get_contents("php://input"), true);
+            if ($input === null && isset($_POST['action'])) 
+            {
+                $input = $_POST;
+            }
+            
             if (isset($input['action'])) 
             {
                 $action = $input['action'];
@@ -36,6 +41,8 @@ class EmpleadosAPI {
                 return $this->getEmployeeByID($input);
             case 'InsertMarking':
                 return $this->InsertMarking($input);
+            case 'InsertEmployee':
+                return $this->InsertEmployee($input);
         }
     }
 
@@ -74,6 +81,49 @@ class EmpleadosAPI {
 
         return $response;
     }
+
+    function InsertEmployee($input) 
+    {
+        $user = $input['txt_usern'];
+        $password = $input['txt_passw'];
+        $name = $input['txt_name'];
+        $lastname = $input['txt_lastname'];
+        $identification = $input['txt_cc'];
+        $phone = preg_replace('/[^0-9]/', '', $input['txt_num']);
+        $age = $input['txt_edad'];
+        $email = $input['txt_email'];
+        $entryDate = date("Y/m/d",strtotime($input['txt_fechadmin']));
+        $chargeId = $input['charges'];
+        $departmentId = $input['departments'];
+
+        // Validar los campos según tus requerimientos antes de la inserción
+
+        $sql = new ExtraerDatos();
+        $result = $sql->insert_user($user, $password);
+        
+        if (empty($result)) 
+        {
+            $response = array('success' => false, 'message' => 'No se insertó el registro de usuario');
+        }
+        else 
+        {
+            $userId = $result; // Obtener el ID del usuario recién insertado
+            $resultEmployee = $sql->insert_employee($userId, $name, $lastname, $identification, $phone, $age, $email, $entryDate, $chargeId, $departmentId);
+
+            if (empty($resultEmployee)) 
+            {
+                $response = array('success' => false, 'message' => 'No se insertó el registro completo del empleado');
+            }
+            else 
+            {
+                $response = array('success' => true, 'message' => 'Empleado registrado correctamente', 'data' => $resultEmployee);
+            }
+        }
+
+        return $response;
+    }
+
+
 }
 
 // Instancia la clase y maneja la solicitud
