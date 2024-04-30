@@ -1,10 +1,5 @@
 <?php
 session_start();
-if (!isset($_SESSION['user'])) 
-{
-    header('Location: ../templates/login.php');
-}
-
 include "../app/markings-services.php";
 $objAPI = new MarkingsAPI();
 // Define el título de la página
@@ -19,64 +14,7 @@ $markings = $objAPI->get_all_markings();
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <h6 class="card-title" style="color: red;">Reporte de Entregas </h6>
-            </div>
-            <div class="card-body">
-                <table id="students" class="data-table table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Cedula</th>
-                            <th>Nombres</th>
-                            <th>Apellidos</th>
-                            <th>Telefono</th>
-                            <th>Carrera</th>
-                            <th>Fecha de entrega</th>
-                            <th>Estado</th>
-
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1004375621</td>
-                            <td>Mausel</td>
-                            <td>Perez</td>
-                            <td>3046756587</td>
-                            <td>Tecnología en Gestion de Sistemas informaticos</td>
-                            <td>2024-04-01 - 12:00:00</td>
-                            <td style="text-align: center;"><span class="badge badge-success">Entregado</span></td>
-                        </tr>
-                        <tr>
-                            <td>1004375621</td>
-                            <td>Mausel</td>
-                            <td>Perez</td>
-                            <td>3046756587</td>
-                            <td>Tecnología en Gestion de Sistemas informaticos</td>
-                            <td>2024-04-02 - 12:30  :00</td>
-                            <td style="text-align: center;"><span class="badge badge-danger">No entregado</span></td>
-                        </tr>
-                    </tbody>
-                    <tfoot>
-                        <tr>
-                            <th>Cedula</th>
-                            <th>Nombres</th>
-                            <th>Apellidos</th>
-                            <th>Telefono</th>
-                            <th>Carrera</th>
-                            <th>Fecha de entrega</th>
-                            <th>Estado</th>
-
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<!--<div class="row">
-    <div class="col-md-12">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title" style="color: red;"> Reporte de Entregas </h6>
+                <h6 class="card-title" style="color: red;"> Reporte de Marcaciones </h6>
             </div>
             <div class="card-body">
                 <table id="markings" class="data-table table table-bordered table-striped">
@@ -138,7 +76,7 @@ $markings = $objAPI->get_all_markings();
             </div>
         </div>
     </div>
-</div>-->
+</div>
 <?php
 // Captura el contenido en una variable
 $content = ob_get_clean();

@@ -8,11 +8,6 @@ class EmpleadosAPI {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') 
         {
             $input = json_decode(file_get_contents("php://input"), true);
-            if ($input === null && isset($_POST['action'])) 
-            {
-                $input = $_POST;
-            }
-            
             if (isset($input['action'])) 
             {
                 $action = $input['action'];
@@ -42,12 +37,15 @@ class EmpleadosAPI {
             case 'InsertMarking':
                 return $this->InsertMarking($input);
 <<<<<<< HEAD
+<<<<<<< HEAD
             case 'InsertEmployee':
                 return $this->InsertEmployee($input);
 =======
             case 'InsertExit':
                 return $this->InsertExit($input);
 >>>>>>> f81b941b5b31ad7904cc50cbe1f7bc1915e33b85
+=======
+>>>>>>> parent of 5609c72... Up
         }
     }
 
@@ -86,6 +84,7 @@ class EmpleadosAPI {
 
         return $response;
     }
+<<<<<<< HEAD
 
     function InsertEmployee($input) 
     {
@@ -132,6 +131,8 @@ class EmpleadosAPI {
 
 =======
 >>>>>>> f81b941b5b31ad7904cc50cbe1f7bc1915e33b85
+=======
+>>>>>>> parent of 5609c72... Up
 }
 
 // Instancia la clase y maneja la solicitud

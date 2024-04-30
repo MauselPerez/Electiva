@@ -121,6 +121,7 @@ class ExtraerDatos extends ConsultasDB
 	}
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	function insert_user($user, $password)
 	{
 		$password = hash('sha1', $password);
@@ -160,6 +161,8 @@ class ExtraerDatos extends ConsultasDB
 	}
 
 
+=======
+>>>>>>> parent of 5609c72... Up
 	//MUESTRA LISTADO DE MARCACIONES
 	function get_all_markings()
 	{
@@ -221,54 +224,6 @@ class ExtraerDatos extends ConsultasDB
 				ac_departments";
 		$lista = $this->consulta_generales($sql);	
 		return $lista;
-	}
-
-
-	//TAREA DE GUETTE
-	function get_all_software()
-	{
-		$sql = 
-			"SELECT
-				*
-			FROM
-				software";
-		$lista = $this->consulta_generales($sql);	
-		return $lista;
-	}
-
-	//INSERTAR SOFTWARE
-	function insert_software($name, $systems, $developer, $requirements, $description, $price)
-	{
-		$sql = "INSERT INTO software 
-					(name, systems, developer, requirements, description, price) 
-				VALUES 
-					('$name', '$systems', '$developer', '$requirements', '$description', $price)";
-		return $this->Operaciones($sql);
-	}
-
-	//CONSULTAR SOFTWARE
-	function get_software_by_id($id)
-	{
-		$sql = 
-			"SELECT
-				*
-			FROM
-				software
-			WHERE
-				cod = $id";
-		$lista = $this->consulta_generales($sql);	
-		return $lista;
-	}
-
-	//ELIMINAR SOFTWARE
-	function delete_software($id)
-	{
-		$sql = 
-			"DELETE FROM
-				software
-			WHERE
-				cod = $id";
-		return $this->Operaciones($sql);
 	}
 
 }//fin CLASE

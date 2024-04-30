@@ -18,7 +18,7 @@ ob_start();
         <h6 class="card-title" style="color: black;"> Crear usuario </h6>
       </div>
       <div class="card-body">
-        <form action="create_employees.php" method="POST" id="frm_create_user" name="frm_create_user">
+        <form action="create_employees.php" method="POST" id="frm_create_user" name="frm_create_user" autocomplete="off">
           <div class="card-body">
             <div class="row">
               <div class="col-md-6 col-sm-12 col-12">
@@ -118,7 +118,7 @@ ob_start();
           </div>  
 
           <div class="card-footer">
-            <button type="submit" id="btn_create_user" name="btn_create_user" class="btn btn-success">Crear Usuario</button>
+            <button type="submit" id="btn_create_user" class="btn btn-success">Crear Usuario</button>
             <button type="reset" class="btn btn-default">Limpiar</button>
           </div>
         </form>
@@ -169,50 +169,5 @@ $content = ob_get_clean();
 // Incluye la plantilla base
 include '../templates/base.php';
 ?>
-
-<script>
-$(document).ready(function() {
-  $("#frm_create_user").off('submit').on('submit', function(e) {
-        e.preventDefault(); // Evitar que el formulario se envíe normalmente
-
-        $("#btn_create_user").prop("disabled", true);
-
-        // Obtener los datos del formulario
-        var formData = new FormData(this);
-
-        // Agregar la acción específica
-        formData.append('action', 'InsertEmployee');
-
-        // Enviar la solicitud AJAX
-        $.ajax({
-            url: '../api/empleados_api.php',
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                // Manejar la respuesta del servidor
-                console.log(response);
-                if (response.success) 
-                {
-                  //Toastr
-                  toastr.success(response.message);
-                  //Limpiar todos los campos
-                  $("#frm_create_user")[0].reset();
-                } 
-                else {
-                    alert(response.message);
-                }
-            },
-            error: function(error) {
-                // Manejar errores
-                console.log(error);
-            }
-        });
-
-        return false;
-    });
-});
-</script>
 
 
