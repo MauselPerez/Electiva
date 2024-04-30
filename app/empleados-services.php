@@ -41,8 +41,13 @@ class EmpleadosAPI {
                 return $this->getEmployeeByID($input);
             case 'InsertMarking':
                 return $this->InsertMarking($input);
+<<<<<<< HEAD
             case 'InsertEmployee':
                 return $this->InsertEmployee($input);
+=======
+            case 'InsertExit':
+                return $this->InsertExit($input);
+>>>>>>> f81b941b5b31ad7904cc50cbe1f7bc1915e33b85
         }
     }
 
@@ -122,8 +127,11 @@ class EmpleadosAPI {
 
         return $response;
     }
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> f81b941b5b31ad7904cc50cbe1f7bc1915e33b85
 }
 
 // Instancia la clase y maneja la solicitud
