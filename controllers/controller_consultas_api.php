@@ -120,8 +120,7 @@ class ExtraerDatos extends ConsultasDB
 		return $this->Operaciones($sql);
 	}
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 	function insert_user($user, $password)
 	{
 		$password = hash('sha1', $password);
@@ -147,7 +146,8 @@ class ExtraerDatos extends ConsultasDB
 		$result = $this->Operaciones($sql);
 
 		return $result;
-=======
+	}
+
 	//REGISTRAR SALIDA DEL EMPLEADO
 	function insert_exit($user_id)
 	{
@@ -157,12 +157,11 @@ class ExtraerDatos extends ConsultasDB
 			WHERE id_employee = $user_id";
 				
 		return $this->Operaciones($sql);
->>>>>>> f81b941b5b31ad7904cc50cbe1f7bc1915e33b85
+
 	}
 
 
-=======
->>>>>>> parent of 5609c72... Up
+
 	//MUESTRA LISTADO DE MARCACIONES
 	function get_all_markings()
 	{
