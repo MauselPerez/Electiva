@@ -30,6 +30,7 @@
     <!-- DataTables -->
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <script src="../scripts/jquery.min.js"></script>
 </head>
 <body class="hold-transition sidebar-mini">
 
@@ -55,22 +56,6 @@
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
-        <section class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2" style="background-color: white; padding: 10px; border-radius: 10px;">
-                    <div class="col-sm-6">
-                        <h5>¡Bienvenido! <?php echo $_SESSION['name']; ?></h5>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item">
-                                <a href="index.php">Inicio</a>
-                            </li>
-                        </ol>
-                    </div>
-                </div>
-            </div><!-- /.container-fluid -->
-        </section>
 
         <!-- Main content -->
         <div class="content" style="margin-left: 10px;">
@@ -123,6 +108,9 @@
 <script src="../templates/AdminLTE-3.0.5/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<!-- jquery -->
+<!--<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>-->
+
 
 <script>
     $(document).ready(function () {
