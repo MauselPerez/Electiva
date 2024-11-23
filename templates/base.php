@@ -1,13 +1,3 @@
-<?php
-if (session_status() == PHP_SESSION_NONE) {
-    session_start();
-}
-if (isset($_POST['action']) && $_POST['action'] === 'cerrar_sesion') {
-    session_destroy();
-    echo json_encode(['success' => true]);
-    exit();
-}
-?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -41,14 +31,14 @@ if (isset($_POST['action']) && $_POST['action'] === 'cerrar_sesion') {
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 </head>
-<body class="sidebar-collapse sidebar-mini">
+<body class="hold-transition sidebar-mini">
 
 <?php include "../views_admin/includes/config.php"; ?>
 
 <!-- Site wrapper -->
 <div class="wrapper">
     <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand <?php echo $headerStyle; ?>">
+    <nav class="main-header navbar navbar-expand navbar navbar-dark bg-dark">
 <?php 
         include "../views_admin/includes/header.php";
 ?>
@@ -56,7 +46,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'cerrar_sesion') {
     <!-- /.navbar -->
 
     <!-- Main Sidebar Container -->
-    <aside class="main-sidebar <?php echo $lateralStyle; ?> elevation-4">
+    <aside class="main-sidebar <?php echo $lateralStyle; ?>" style="border-right: 1px solid white;">
 <?php 
         include "../views_admin/includes/lateralaside.php";
 ?>
