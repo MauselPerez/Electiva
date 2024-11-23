@@ -15,3 +15,5 @@ function card($rutaImagen, $nombreImagen, $nombreCarta) {
 
     return $html;
 }
+
+

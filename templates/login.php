@@ -1,5 +1,10 @@
 <?php
-session_start();
+    session_start();
+    if(isset($_SESSION['user'])){
+        header('Location: ../views_admin/index.php');
+    }else{
+        session_destroy();
+    }
 ?>
 
 <!DOCTYPE html>
@@ -53,33 +58,32 @@ session_start();
                     <div class="text-center">
                         <h1 class="mt-1 mb-5 pb-1">Well Snack</h1>
                     </div>
-
-                    <?php if (isset($_SESSION['error'])): ?>
-                        <div class="alert alert-danger">
-                            <?= $_SESSION['error']; ?>
-                        </div>
-                        <?php unset($_SESSION['error']); ?>
-                    <?php endif; ?>
-
                     <form action="../controllers/login_controller.php" method="POST" autocomplete="off">
                         <p><b>Ingrese sus credenciales de acceso</b></p>
                         <div class="form-outline mb-4">
-                            <label class="form-label" for="form2Example11">Usuario</label>
-                            <input type="text" id="form2Example11" name="username" class="form-control" placeholder="Usuario" required/>
+                            <label class="form-label" for="username">Usuario</label>
+                            <input type="text" id="username" name="username" class="form-control" placeholder="Usuario" required/>
                         </div>
                         <div class="form-outline mb-4">
-                            <label class="form-label" for="form2Example22">Contraseña</label>
-                            <input type="password" id="form2Example22" name="password" class="form-control" placeholder="contraseña" required/>
+                            <label class="form-label" for="password">Contraseña</label>
+                            <input type="password" id="password" name="password" class="form-control" placeholder="contraseña" required/>
                         </div>
                         <div class="text-center pt-1 mb-5 pb-1">
                             <button class="btn btn-primary btn-block fa-lg gradient-custom-3 mb-3" type="submit">Log in</button>
                             <a class="text-muted" href="#!">Olvidó la contraseña?</a>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
 </body>
 </html>
+
+<?php
+    if(isset($_SESSION['error'])){
+        echo "<script>toastr.error('".$_SESSION['error']."')</script>";
+        unset($_SESSION['error']);
+    }
+?>
+

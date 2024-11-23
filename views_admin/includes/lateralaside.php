@@ -12,7 +12,7 @@
     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
       <!-- Menu para las solicitudes -->
       <li class="nav-item">
-        <a href="index.php" class="nav-link">
+        <a href="#" class="nav-link">
           <i class="nav-icon fas fa-sign-out-alt"></i>
           <p>
             Citas medicas
@@ -20,7 +20,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="snacks.php" class="nav-link">
         <i class="nav-icon fas fa-users"></i>
           <p>
             Reparto de meriendas

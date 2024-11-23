@@ -1,7 +1,22 @@
 <?php
-// Define el título de la página
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../templates/login.php");
+    exit();
+}
+
+require_once '../controllers/reports_controller.php';
+$reportsController = new ReportsController();
+
+$quantity_to_deliver = $reportsController->getQuantityToDeliver();
+$delivered = $reportsController->getDelivered();
+$not_delivered = $quantity_to_deliver - $delivered;
+if ($delivered == 0) {
+    $average_delivery = 0;
+} else {
+    $average_delivery = ($quantity_to_deliver / $delivered) * 100;
+}
 $title = "Reporte de entregas";
-// Contenido específico de la página
 ob_start();
 ?>
 <style>
@@ -27,9 +42,9 @@ ob_start();
         <div class="info-box">
             <span class="info-box-icon bg-info elevation-1"><i class="fas fa-handshake"></i></span>
             <div class="info-box-content">
-                <span class="info-box-text">Cantidad total a entregar</span>
+                <span class="info-box-text">Cantidad a entregar mensual</span>
                 <span class="info-box-number">
-                    50
+                    <?=$quantity_to_deliver?>
                 </span>
             </div>
         </div>
@@ -38,8 +53,8 @@ ob_start();
         <div class="info-box mb-3">
             <span class="info-box-icon bg-danger elevation-1"><i class="fas fa-thumbs-down"></i></span>
             <div class="info-box-content">
-                <span class="info-box-text">No entregadas</span>
-                <span class="info-box-number">2</span>
+                <span class="info-box-text">No entregadas al mes</span>
+                <span class="info-box-number"><?=$not_delivered?></span>
             </div>
         </div>
     </div>
@@ -48,8 +63,8 @@ ob_start();
         <div class="info-box mb-3">
             <span class="info-box-icon bg-success elevation-1"><i class="fas fa-thumbs-up"></i></span>
             <div class="info-box-content">
-                <span class="info-box-text">Entregadas</span>
-                <span class="info-box-number">48</span>
+                <span class="info-box-text">Entregadas al mes</span>
+                <span class="info-box-number"><?=$delivered?></span>
             </div>
         </div>
     </div>
@@ -57,8 +72,8 @@ ob_start();
         <div class="info-box mb-3">
             <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-calculator"></i></span>
             <div class="info-box-content">
-                <span class="info-box-text">Promedio entregas</span>
-                <span class="info-box-number">50</span>
+                <span class="info-box-text">Promedio entregas al mes</span>
+                <span class="info-box-number"><?=$average_delivery?> %</span>
             </div>
         </div>
     </div>
@@ -82,46 +97,52 @@ ob_start();
         });
 
         var areaChartData = {
-            labels: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio"],
-            datasets: [
+            labels: [
+<?php
+                $deliveries = $reportsController->getDeliveriesByMonth();
+                foreach ($deliveries as $delivery) 
                 {
-                    label: "Entregas por meses",
-                    backgroundColor: "rgba(60,141,188,0.9)",
-                    borderColor: "rgba(60,141,188,0.8)",
-                    pointRadius: false,
-                    pointColor: "#3b8bba",
-                    pointStrokeColor: "rgba(60,141,188,1)",
-                    pointHighlightFill: "#fff",
-                    pointHighlightStroke: "rgba(60,141,188,1)",
-                    data: [28, 48, 40, 19, 86, 27, 90]
+                    echo "'" . $delivery['month'] . "',";
                 }
-            ]
-        };
+?>
+            ],
+            datasets: [{
+                label: 'Entregas',
+                backgroundColor: 'rgba(60,141,188,0.9)',
+                borderColor: 'rgba(60,141,188,0.8)',
+                pointRadius: false,
+                pointColor: '#3b8bba',
+                pointStrokeColor: 'rgba(60,141,188,1)',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(60,141,188,1)',
+                data: [
+<?php
+                    foreach ($deliveries as $delivery) 
+                    {
+                        echo $delivery['delivered'] . ",";
+                    }
+?>
+                ]
+            }]
+        }
 
-        var barChartCanvas = $("#barChart").get(0).getContext("2d");
+        var barChartCanvas = $('#barChart').get(0).getContext('2d')
+        var barChartData = jQuery.extend(true, {}, areaChartData)
+        var temp0 = areaChartData.datasets[0]
+        barChartData.datasets[0] = temp0
+
+        var barChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            datasetFill: false
+        }
+
         var barChart = new Chart(barChartCanvas, {
             type: 'bar',
-            data: areaChartData,
-            options: {
-                maintainAspectRatio: false,
-                responsive: true,
-                legend: {
-                    display: false
-                },
-                scales: {
-                    xAxes: [{
-                            gridLines: {
-                                display: false,
-                            }
-                        }],
-                    yAxes: [{
-                            gridLines: {
-                                display: false,
-                            }
-                        }]
-                }
-            }
-        });
+            data: barChartData,
+            options: barChartOptions
+        })
+
 
 
     });

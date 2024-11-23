@@ -8,6 +8,11 @@ if (!isset($_SESSION['user_id'])) {
 $title = "Inicio";
 ob_start();
 ?>
+<style>
+    img:hover {
+        transform: scale(1.1);
+    }
+</style>
 <div class="row">
     <?=card('#', 'clinic.png', 'Citas medicas')?>
     <?=card('snacks.php', 'food.png', 'Meriendas')?>

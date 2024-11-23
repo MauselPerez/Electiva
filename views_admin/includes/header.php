@@ -37,13 +37,13 @@
       <i class="far fa-user"></i>
     </a>
     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-      <span class="dropdown-item dropdown-header">Nombre Usuario</span>
+      <span class="dropdown-item dropdown-header"><i class="fas fa-user mr-2"></i> <?=$_SESSION['username']?></span>
       <div class="dropdown-divider"></div>
-      <a href="#" class="dropdown-item">
+      <!--<a href="#" class="dropdown-item">
         <i class="fas fa-user mr-2"></i> Editar
-      </a>
+      </a>-->
       <div class="dropdown-divider"></div>
-      <a href="../templates/login.php" class="dropdown-item dropdown-footer">Cerrar Sesión</a>
+      <a href="../public/logout.php" class="dropdown-item dropdown-footer">Cerrar Sesión</a>
     </div>
   </li>
 </ul>

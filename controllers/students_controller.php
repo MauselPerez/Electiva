@@ -1,87 +1,79 @@
 <?php
-include '../public/includes/mistakes.php';
-see_errors();
-session_start();
-
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../templates/login.php");
-    exit();
-}
+require_once '../models/students.php';
 
 class StudentsController {
-    public function getAllStudents() {
-        $url = 'http://127.0.0.1:8000/api/estudiantes';
-        
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Accept: application/json'
-        ]);
-        
-        $response = curl_exec($ch);
-        curl_close($ch);
-        
-        return json_decode($response, true);
+    private $studentModel;
+
+    public function __construct() {
+        $this->studentModel = new Student();
     }
 
-    public function createStudent($student) {
-        $url = 'http://127.0.0.1:8000/api/estudiante';
-    
-        // Verifica si existe el token de acceso en la sesión
-        if (!isset($_SESSION['access_token'])) {
-            $_SESSION['error'] = "No se pudo autenticar. Intente iniciar sesión nuevamente.";
-            header("Location: ../templates/login.php");
-            exit();
-        }
-    
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            'Authorization: Bearer ' . $_SESSION['access_token']  // Agregar el token al encabezado
-        ]);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($student));
-    
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo 'Error en la solicitud: ' . curl_error($ch);
-        } else {
-            echo 'Respuesta de la API: ' . $response;
-        }
-        curl_close($ch);
-    
-        return json_decode($response, true);
+    // Listar todos los estudiantes
+    public function index() {
+        return $this->studentModel->getAllStudents();
     }
-    
-}
 
-// Crear una instancia del controlador
-$studentsController = new StudentsController();
+    // Registrar un nuevo estudiante
+    public function create($data) {
+        try {
+            if (empty($data['program_id']) || empty($data['document_number']) || empty($data['first_name']) ||
+                empty($data['last_name']) || empty($data['email']) || empty($data['semester'])) {
+                throw new Exception("Todos los campos son obligatorios.");
+            }
 
-// Procesar el formulario de creación de estudiante
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_student'])) {
-    // Crear un arreglo con los datos del estudiante a enviar a la API
-    $newStudent = [
-        'id_programa' => $_POST['id_programa'],
-        'n_documento' => $_POST['n_documento'],
-        'nombre' => $_POST['nombre'],
-        'apellido' => $_POST['apellido'],
-        'email' => $_POST['email'],
-        'telefono' => $_POST['telefono']
-    ];
+            $studentModel = new Student();
+            $result = $studentModel->createStudent([
+                'program_id' => $data['program_id'],
+                'document_number' => $data['document_number'],
+                'first_name' => $data['first_name'],
+                'last_name' => $data['last_name'],
+                'email' => $data['email'],
+                'semester' => $data['semester'],
+            ]);
 
-    // Llamar al método `createStudent` con los datos del estudiante
-    $result = $studentsController->createStudent($newStudent);
+            if ($result) {
+                $_SESSION['message'] = "Estudiante registrado correctamente.";
+                $_SESSION['message_type'] = "success";
+            } 
+            else 
+            {
+                $_SESSION['message'] = "Error al registrar el estudiante.";
+                $_SESSION['message_type'] = "danger";
+            }
 
-    if ($result) {
-        // Redirigir o mostrar un mensaje de éxito
-        header("Location: ../views_admin/students.php?status=success");
-        exit();
-    } else {
-        // Manejar el error (redireccionar o mostrar mensaje)
-        header("Location: ../views_admin/students.php?status=error");
-        exit();
+            header("Location: students.php");
+            exit;
+        } catch (Exception $e) {
+            echo "Error al crear el estudiante: " . $e->getMessage();
+        }
+    }
+
+    // Actualizar un estudiante existente
+    public function update($id, $data) {
+        return  $this->studentModel->updateStudent($id, $data);
+    }
+
+    // Eliminar un estudiante
+    public function delete($id) {
+        $result = $this->studentModel->deleteStudent($id);
+        if ($result) 
+        {
+            $_SESSION['message'] = "Estudiante eliminado correctamente.";
+            $_SESSION['message_type'] = "success";
+            header("Location: students.php");
+            exit;
+        } 
+        else 
+        {
+            $_SESSION['message'] = "Error al eliminar el estudiante.";
+            $_SESSION['message_type'] = "danger";
+            header("Location: students.php");
+            exit;
+        }
+    }
+
+    public function getAllPrograms() {
+        return $this->studentModel->getAllPrograms();
     }
 }
 ?>
