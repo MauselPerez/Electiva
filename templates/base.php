@@ -30,6 +30,7 @@
     <!-- DataTables -->
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <script src="../scripts/jquery.min.js"></script>
 </head>
 <body class="hold-transition sidebar-mini">
 

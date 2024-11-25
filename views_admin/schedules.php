@@ -17,6 +17,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
     header('Location: schedules.php');
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'cancel') {
+    $schedulesController->cancel($_GET['id']);
+    header('Location: schedules.php');
+}
+
 $schedules = $schedulesController->index();
 $title = "Planificaciones";
 ob_start();
@@ -26,6 +31,8 @@ ob_start();
 <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fullcalendar-daygrid/main.min.css">
 <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fullcalendar-timegrid/main.min.css">
 <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fullcalendar-bootstrap/main.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <style>
     #title {
         background-color: white;
@@ -63,15 +70,31 @@ ob_start();
 <?php
                 foreach ($schedules as $schedule) 
                 {
-                    $status = $schedule['status'] == 1 ? 'Ejecutado' : 'Pendiente';
+                    switch ($schedule['status']) {
+                        case 1:
+                            $status = 'Ejecutado';
+                            $background = 'green';
+                            break;
+                        case 2:
+                            $status = 'Anualado';
+                            $background = 'orange';
+                            break;
+                        default:
+                            $status = 'Pendiente';
+                            $background = 'red';
+                            break;
+                    }
 ?>
                     <tr>
                         <td><?= $schedule['id'] ?></td>
                         <td><?= date("Y-M-d - l", strtotime($schedule['delivery_day'])) ?></td>
                         <td><?= $schedule['created_by'] ?></td>
                         <td><?= date("Y-m-d",strtotime($schedule['created_at'])) ?></td>
-                        <td style="background-color:<?= $schedule['status'] == 1 ? 'green' : 'red' ?>; color: white; text-align: center;"><?= $status ?></td>
+                        <td style="background-color: <?= $background ?>; color: white; text-align: center;"><?= $status ?></td>
                         <td style="text-align: center;">
+                            <button type="button" class="btn btn-warning btn-sm" onclick="cancel_delivery(<?=htmlspecialchars($schedule['id']); ?>)">
+                                <i class='fas fa-recycle'></i>
+                            </button>
                             <button type="button" class="btn btn-danger btn-sm" onclick="delete_schedule(<?=htmlspecialchars($schedule['id']); ?>)">
                                 <i class="fa fa-trash"></i>
                             </button>
@@ -117,7 +140,7 @@ ob_start();
 			</div>
 			<form method="POST" action="schedules.php?action=create">
 				<div class="modal-body">
-                    <p style="color: red; font-size:small;">Se tomaran los días <b>sabados</b> y <b>domingos</b> dentro del rango de fecha seleccionado para la creación de los registros de entrega.</p>
+                    <p style="color: red; font-size:medium;">Se tomaran los días <b>viernes</b> y <b>sabados</b> dentro del rango de fecha seleccionado para la creación de los registros de entrega.</p>
                     <div class="form-group">
                         <label for="start_date">Fecha inicio</label>
                         <input type="date" class="form-control" id="start_date" name="start_date" required>
@@ -180,21 +203,34 @@ ob_start();
                 right : 'dayGridMonth,timeGridWeek,timeGridDay'
             },
             events: [
-                <?php
+<?php
                     foreach ($schedules as $schedule) 
                     {
-                        $status = $schedule['status'] == 1 ? 'Ejecutado' : 'Pendiente';
-                ?>
-                    {
-                        title          : '<?= $status ?>',
-                        start          : '<?= $schedule['delivery_day'] ?>',
-                        backgroundColor: '<?= $schedule['status'] == 1 ? 'green' : 'red' ?>',
-                        borderColor    : '<?= $schedule['status'] == 1 ? 'green' : 'red' ?>',
-                        url            : 'schedules.php?action=delete&id=<?= $schedule['id'] ?>'
-                    },
-                <?php
+                        switch ($schedule['status']) {
+                            case 1:
+                                $status = 'Ejecutado';
+                                $background = 'green';
+                                break;
+                            case 2:
+                                $status = 'Anulado';
+                                $background = 'orange';
+                                break;
+                            default:
+                                $status = 'Pendiente';
+                                $background = 'red';
+                                break;
+                        }
+?>
+                        {
+                            title          : '<?= $status ?>',
+                            start          : '<?= $schedule['delivery_day'] ?>',
+                            backgroundColor: '<?= $background ?>',
+                            borderColor    : '<?= $background ?>',
+                            url            : 'schedules.php?action=delete&id=<?= $schedule['id'] ?>'
+                        },
+<?php
                     }
-                ?>
+?>
             ],
             editable  : true,
             droppable : true,
@@ -212,6 +248,12 @@ ob_start();
     function delete_schedule(id) {
         if (confirm('¿Está seguro de eliminar la planificación?')) {
             window.location.href = 'schedules.php?action=delete&id=' + id;
+        }
+    }
+
+    function cancel_delivery(id) {
+        if (confirm('¿Está seguro de cancelar la entrega?')) {
+            window.location.href = 'schedules.php?action=cancel&id=' + id;
         }
     }
 </script>

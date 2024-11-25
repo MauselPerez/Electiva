@@ -263,6 +263,14 @@ ob_start();
         $('#return').click(function() {
             window.location.href = 'snacks.php';
         });
+
+        $message = "<?=$_SESSION['message'] ?? ''?>";
+        $message_type = "<?=$_SESSION['message_type'] ?? ''?>";
+        if ($message) {
+            toastr[$message_type]($message);
+            <?php unset($_SESSION['message']); ?>
+            <?php unset($_SESSION['message_type']); ?>
+        }
     });
 
     function show_edit(element) {

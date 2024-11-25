@@ -12,7 +12,7 @@ $studentsController = new StudentsController();
 $schedulesController = new SchedulesController();
 $deliveryController = new DeliveryController();
 $students = $studentsController->index();
-$schedules = $schedulesController->index();
+$schedules = $schedulesController->indexNotCanceled();
 $deliveries = $deliveryController->index();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'create') {

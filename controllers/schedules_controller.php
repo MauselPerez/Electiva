@@ -17,6 +17,11 @@ class SchedulesController {
         return $this->scheduleModel->getAllSchedules();
     }
 
+    //Traer todas las planificaciones exepto las canceladas
+    public function indexNotCanceled() {
+        return $this->scheduleModel->getAllSchedulesNotCanceled();
+    }
+
     // Registrar una nueva planificación
     public function create($data) {
         try {
@@ -82,6 +87,24 @@ class SchedulesController {
         } else 
         {
             $_SESSION['message'] = "Error al eliminar la programación.";
+            $_SESSION['message_type'] = "danger";
+            header("Location: schedules.php");
+            exit;
+        }
+    }
+
+    //Cancelar una planificación
+    public function cancel($id) {
+        $result = $this->scheduleModel->cancelSchedule($id);
+        if ($result) 
+        {
+            $_SESSION['message'] = "Programación cancelada correctamente.";
+            $_SESSION['message_type'] = "success";
+            header("Location: schedules.php");
+            exit;
+        } else 
+        {
+            $_SESSION['message'] = "Error al cancelar la programación.";
             $_SESSION['message_type'] = "danger";
             header("Location: schedules.php");
             exit;
