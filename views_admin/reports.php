@@ -9,12 +9,14 @@ require_once '../controllers/reports_controller.php';
 
 $reportsController = new ReportsController();
 
+
 $quantity_to_deliver = $reportsController->getQuantityToDeliver();
 $delivered = $reportsController->getDelivered();
 $not_delivered = $quantity_to_deliver - $delivered;
 $average_delivery = $reportsController->getAverageDelivery();
 $schedules = $reportsController->getSchedules();
 $title = "Reporte de entregas";
+
 ob_start();
 ?>
 

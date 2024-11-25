@@ -19,10 +19,13 @@ class ReportsController {
     public function getAverageDelivery() {
         $data = $this->reportsModel->getDeliveriesByMonth();
         $total = 0;
-        foreach ($data as $month) {
-            $total += $month['delivered'];
+        if (!empty($data)) {
+            foreach ($data as $month) {
+                $total += $month['delivered'];
+            }
+            return $total / count($data);
         }
-        return $total / count($data);
+        return 0;
     }
 
     // Buscar todas las planificaciones de entrega
