@@ -68,8 +68,14 @@ ob_start();
             </thead>
             <tbody>
 <?php
+                $dias_semana = ["Sunday" => "Domingo", "Monday" => "Lunes", "Tuesday" => "Martes", "Wednesday" => "Miércoles", "Thursday" => "Jueves", "Friday" => "Viernes", "Saturday" => "Sábado"];
+                $meses = ["Jan" => "Ene", "Feb" => "Feb", "Mar" => "Mar", "Apr" => "Abr", "May" => "May", "Jun" => "Jun", "Jul" => "Jul", "Aug" => "Ago", "Sep" => "Sep", "Oct" => "Oct", "Nov" => "Nov", "Dec" => "Dic"];
                 foreach ($schedules as $schedule) 
                 {
+                    $fecha_timestamp = strtotime($schedule['delivery_day']);
+                    $day_name = $dias_semana[date("l", $fecha_timestamp)];
+                    $month_name = $meses[date("M", $fecha_timestamp)];
+                    $final_date = date("Y", $fecha_timestamp) . "-" . $month_name . "-" . date("d", $fecha_timestamp) . " - " . $day_name;
                     switch ($schedule['status']) {
                         case 1:
                             $status = 'Ejecutado';
@@ -87,7 +93,7 @@ ob_start();
 ?>
                     <tr>
                         <td><?= $schedule['id'] ?></td>
-                        <td><?= date("Y-M-d - l", strtotime($schedule['delivery_day'])) ?></td>
+                        <td><?= $final_date ?></td>
                         <td><?= $schedule['created_by'] ?></td>
                         <td><?= date("Y-m-d",strtotime($schedule['created_at'])) ?></td>
                         <td style="background-color: <?= $background ?>; color: white; text-align: center;"><?= $status ?></td>

@@ -2,7 +2,7 @@
 // Configuración de la base de datos
 $dbHost = 'localhost';
 $dbName = 'db_project';
-$dbUser = 'root';
+$dbUser = 'g4';
 $dbPass = 'Gt4s.frc-kvCOl221337fc';
 
 try {

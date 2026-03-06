@@ -24,6 +24,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $_SESSION['first_name'] = $user['first_name'];
         $_SESSION['last_name'] = $user['last_name'];
         $_SESSION['email'] = $user['email'];
+        $_SESSION['name']  = $user['first_name'] . ' ' . $user['last_name'];
 
         header("Location: ../views_admin/index.php");
         exit();
