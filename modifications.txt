@@ -1,0 +1,2 @@
+* Crear tabla personas donde estaran campos generales nombres, apellidos, cedula y de ahí salen la tabla usuarios y estudiantes con campos especificos.
+* Crear tabla de rol.
