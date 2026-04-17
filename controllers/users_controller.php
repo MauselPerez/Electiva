@@ -16,26 +16,32 @@ class UsersController {
     // Registrar un nuevo usuario
     public function create($data) {
         try {
-            if (empty($data['username']) || empty($data['password']) || empty($data['document_number']) || empty($data['first_name']) || empty($data['last_name']) || empty($data['email'])) {
+            if (
+                empty($data['username']) ||
+                empty($data['password']) ||
+                empty($data['document_number']) ||
+                empty($data['first_name']) ||
+                empty($data['last_name']) ||
+                empty($data['email']) ||
+                empty($data['role_id'])
+            ) {
                 throw new Exception("Todos los campos son obligatorios.");
             }
 
-            $userModel = new User();
-            $result = $userModel->createUser([
-                'username' => $data['username'],
+            $result = $this->userModel->createUser([
+                'username' => trim($data['username']),
                 'password' => $data['password'],
-                'document_number' => $data['document_number'],
-                'first_name' => $data['first_name'],
-                'last_name' => $data['last_name'],
-                'email' => $data['email']
+                'document_number' => trim($data['document_number']),
+                'first_name' => trim($data['first_name']),
+                'last_name' => trim($data['last_name']),
+                'email' => trim($data['email']),
+                'role_id' => trim($data['role_id'])
             ]);
 
             if ($result) {
                 $_SESSION['message'] = "Usuario registrado correctamente.";
                 $_SESSION['message_type'] = "success";
-            } 
-            else 
-            {
+            } else {
                 $_SESSION['message'] = "Error al registrar el usuario.";
                 $_SESSION['message_type'] = "danger";
             }
@@ -43,44 +49,73 @@ class UsersController {
             header("Location: users.php");
             exit;
         } catch (Exception $e) {
-            echo "Error al crear el usuario: " . $e->getMessage();
+            $_SESSION['message'] = "Error al crear el usuario: " . $e->getMessage();
+            $_SESSION['message_type'] = "danger";
+            header("Location: users.php");
+            exit;
         }
     }
 
     // Actualizar un usuario existente
     public function update($id, $data) {
-        $result =  $this->userModel->updateUser($id, $data);
+        try {
+            if (
+                empty($id) ||
+                empty($data['username']) ||
+                empty($data['document_number']) ||
+                empty($data['first_name']) ||
+                empty($data['last_name']) ||
+                empty($data['email']) ||
+                empty($data['role_id'])
+            ) {
+                throw new Exception("Todos los campos son obligatorios.");
+            }
 
-        if ($result) 
-        {
-            $_SESSION['message'] = "Usuario actualizado correctamente.";
-            $_SESSION['message_type'] = "success";
-        } 
-        else 
-        {
-            $_SESSION['message'] = "Error al actualizar el usuario.";
+            $result = $this->userModel->updateUser($id, $data);
+
+            if ($result) {
+                $_SESSION['message'] = "Usuario actualizado correctamente.";
+                $_SESSION['message_type'] = "success";
+            } else {
+                $_SESSION['message'] = "Error al actualizar el usuario.";
+                $_SESSION['message_type'] = "danger";
+            }
+
+            header("Location: users.php");
+            exit;
+        } catch (Exception $e) {
+            $_SESSION['message'] = "Error al actualizar el usuario: " . $e->getMessage();
             $_SESSION['message_type'] = "danger";
+            header("Location: users.php");
+            exit;
         }
-
-        header("Location: users.php");
-        exit;
     }
 
     // Eliminar un usuario
     public function delete($id) {
-        $result = $this->userModel->deleteUser($id);
-        if ($result) 
-        {
-            $_SESSION['message'] = "Usuario eliminado correctamente.";
-            $_SESSION['message_type'] = "success";
-        } 
-        else 
-        {
-            $_SESSION['message'] = "Error al eliminar el usuario.";
-            $_SESSION['message_type'] = "danger";
-        }
+        try {
+            $result = $this->userModel->deleteUser($id);
 
-        header("Location: users.php");
-        exit;
+            if ($result) {
+                $_SESSION['message'] = "Usuario eliminado correctamente.";
+                $_SESSION['message_type'] = "success";
+            } else {
+                $_SESSION['message'] = "Error al eliminar el usuario.";
+                $_SESSION['message_type'] = "danger";
+            }
+
+            header("Location: users.php");
+            exit;
+        } catch (Exception $e) {
+            $_SESSION['message'] = "Error al eliminar el usuario: " . $e->getMessage();
+            $_SESSION['message_type'] = "danger";
+            header("Location: users.php");
+            exit;
+        }
+    }
+
+    public function getAllRoles() {
+        return $this->userModel->getAllRoles();
     }
 }
+?>

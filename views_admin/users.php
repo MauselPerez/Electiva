@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 }
 
 $users = $controller->index();
+$roles = $controller->getAllRoles();
 $title = "Usuarios";
 ob_start();
 ?>
@@ -61,6 +62,7 @@ ob_start();
                     <th>Nombres</th>
                     <th>Apellidos</th>
                     <th>Email</th>
+                    <th>Rol</th>
                     <th>Estado</th>
                     <th style="width: 7%;"></th>
                     <th style="width: 7%;"></th>
@@ -80,6 +82,7 @@ ob_start();
                         <td><?= $user['first_name'] ?></td>
                         <td><?= $user['last_name'] ?></td>
                         <td><?= $user['email'] ?></td>
+                        <td><?= htmlspecialchars($user['rol']) ?></td>
                         <td style="text-align:center;">
                             <?php if ($user['is_active'] == 1) { ?>
                                 <span class="badge badge-success" style="padding: 8px;">Activo</span>
@@ -88,7 +91,7 @@ ob_start();
                             <?php } ?>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)">
+                            <button  type="button"  class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($user['id']) ?>" data-document-number="<?= htmlspecialchars($user['document_number']) ?>" data-username="<?= htmlspecialchars($user['username']) ?>" data-first-name="<?= htmlspecialchars($user['first_name']) ?>" data-last-name="<?= htmlspecialchars($user['last_name']) ?>" data-email="<?= htmlspecialchars($user['email']) ?>" data-role-id="<?= htmlspecialchars($user['role_id']) ?>" data-is-active="<?= htmlspecialchars($user['is_active']) ?>">
                                 <i class="fa fa-edit"></i>
                             </button>
                         </td>
@@ -119,6 +122,7 @@ ob_start();
                     <th>Nombres</th>
                     <th>Apellidos</th>
                     <th>Email</th>
+                    <th>Rol</th>
                     <th>Estado</th>
                     <th></th>
                     <th></th>
@@ -156,6 +160,17 @@ ob_start();
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role_id">Rol</label>
+                        <select class="form-control" id="role_id" name="role_id" required>
+                            <option value="">Seleccione un rol</option>
+                            <?php foreach ($roles as $role) { ?>
+                                <option value="<?= htmlspecialchars($role['id']) ?>">
+                                    <?= htmlspecialchars($role['name']) ?>
+                                </option>
+                            <?php } ?>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña</label>
@@ -201,6 +216,31 @@ ob_start();
                         <label for="email">Email</label>
                         <input type="email" class="form-control" id="email_edit" name="email" required>
                     </div>
+                    <div class="form-group">
+                        <label for="role_id_edit">Rol</label>
+                        <select class="form-control" id="role_id_edit" name="role_id" required>
+                            <option value="">Seleccione un rol</option>
+                            <?php foreach ($roles as $role) { ?>
+                                <option value="<?= htmlspecialchars($role['id']) ?>">
+                                    <?= htmlspecialchars($role['name']) ?>
+                                </option>
+                            <?php } ?>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="is_active_edit">Estado</label>
+                        <select class="form-control" id="is_active_edit" name="is_active" required>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password_edit">Nueva contraseña</label>
+                        <input type="password" class="form-control" id="password_edit" name="password">
+                        <small class="form-text text-muted">Déjelo vacío si no desea cambiar la contraseña.</small>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -227,12 +267,14 @@ ob_start();
     });
 
     function show_edit(element) {
-        var id = $(element).closest('tr').find('td').eq(0).text();
-        var document_number = $(element).closest('tr').find('td').eq(1).text();
-        var username = $(element).closest('tr').find('td').eq(2).text();
-        var first_name = $(element).closest('tr').find('td').eq(3).text();
-        var last_name = $(element).closest('tr').find('td').eq(4).text();
-        var email = $(element).closest('tr').find('td').eq(5).text();
+        var id = $(element).data('id');
+        var document_number = $(element).data('document-number');
+        var username = $(element).data('username');
+        var first_name = $(element).data('first-name');
+        var last_name = $(element).data('last-name');
+        var email = $(element).data('email');
+        var role_id = $(element).data('role-id');
+        var is_active = $(element).data('is-active');
 
         $('#id').val(id);
         $('#document_number_edit').val(document_number);
@@ -240,6 +282,9 @@ ob_start();
         $('#first_name_edit').val(first_name);
         $('#last_name_edit').val(last_name);
         $('#email_edit').val(email);
+        $('#role_id_edit').val(role_id);
+        $('#is_active_edit').val(is_active);
+        $('#password_edit').val('');
 
         $('#edit_user').modal('show');
     }

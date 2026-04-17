@@ -8,35 +8,39 @@ class DeliveryController {
         $this->deliveryModel = new Delivery();
     }
 
-    // Listar todos los envios
+    // Listar todas las entregas
     public function index() {
         return $this->deliveryModel->getAllDeliveries();
     }
 
-    // Registrar un nuevo envio
+    // Registrar nuevas entregas
     public function create($data) {
         try {
             if (empty($data['students']) || empty($data['delivery_scheduling_id'])) {
                 throw new Exception("Todos los campos son obligatorios.");
             }
+
             $user_id = $_SESSION['user_id'];
-            foreach ($data['students'] as $student_id) 
-            {
-                $result = $this->deliveryModel->createDelivery([
+            $result = true;
+
+            foreach ($data['students'] as $student_id) {
+                $created = $this->deliveryModel->createDelivery([
                     'student_id' => $student_id,
                     'delivery_scheduling_id' => $data['delivery_scheduling_id'],
                     'user_id' => $user_id,
                 ]);
+
+                if (!$created) {
+                    $result = false;
+                    break;
+                }
             }
 
-            if ($result) 
-            {
+            if ($result) {
                 $this->deliveryModel->updateDeliverySchedulingStatus($data['delivery_scheduling_id']);
                 $_SESSION['message'] = "Entregas de merienda registradas correctamente.";
                 $_SESSION['message_type'] = "success";
-            }
-            else 
-            {
+            } else {
                 $_SESSION['message'] = "Error al registrar las entregas de merienda.";
                 $_SESSION['message_type'] = "danger";
             }
@@ -44,29 +48,35 @@ class DeliveryController {
             header("Location: delivery.php");
             exit;
         } catch (Exception $e) {
-            echo "Error al crear el envio: " . $e->getMessage();
+            $_SESSION['message'] = "Error al crear la entrega: " . $e->getMessage();
+            $_SESSION['message_type'] = "danger";
+            header("Location: delivery.php");
+            exit;
         }
     }
 
-    // Actualizar un envio existente
+    // Actualizar una entrega existente
     public function update($id, $data) {
-        return  $this->deliveryModel->updateDelivery($id, $data);
-
+        return $this->deliveryModel->updateDelivery($id, $data);
     }
 
-    // Eliminar un envio
+    // Eliminar una entrega
     public function delete($id) {
-        $result = $this->deliveryModel->deleteDelivery($id);
-        if ($result) 
-        {
-            $_SESSION['message'] = "Entrega eliminada correctamente.";
-            $_SESSION['message_type'] = "success";
+        try {
+            $result = $this->deliveryModel->deleteDelivery($id);
+
+            if ($result) {
+                $_SESSION['message'] = "Entrega eliminada correctamente.";
+                $_SESSION['message_type'] = "success";
+            } else {
+                $_SESSION['message'] = "Error al eliminar la entrega.";
+                $_SESSION['message_type'] = "danger";
+            }
+
             header("Location: delivery.php");
             exit;
-        } 
-        else 
-        {
-            $_SESSION['message'] = "Error al eliminar la entrega.";
+        } catch (Exception $e) {
+            $_SESSION['message'] = "Error al eliminar la entrega: " . $e->getMessage();
             $_SESSION['message_type'] = "danger";
             header("Location: delivery.php");
             exit;
@@ -77,3 +87,4 @@ class DeliveryController {
         return $this->deliveryModel->getAllDeliveries();
     }
 }
+?>
