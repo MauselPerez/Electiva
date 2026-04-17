@@ -58,7 +58,7 @@
                     <div class="text-center">
                         <h1 class="mt-1 mb-5 pb-1">Well Snack</h1>
                     </div>
-                    <form action="../controllers/login_controller.php" method="POST" autocomplete="off">
+                    <form action="../controllers/login_controller.php" method="POST" autocomplete="off" style="margin: 100px;">
                         <p><b>Ingrese sus credenciales de acceso</b></p>
                         <div class="form-outline mb-4">
                             <label class="form-label" for="username">Usuario</label>

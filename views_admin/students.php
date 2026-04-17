@@ -82,11 +82,9 @@ ob_start();
                         <td><?=htmlspecialchars($student['semester']); ?></td>
                         <td><?=htmlspecialchars($student['email']); ?></td>
                         <td>
-                            <!-- Modal de editar -->
-                            <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)">
+                            <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($student['id']); ?>" data-program-id="<?= htmlspecialchars($student['academic_program_id']); ?>" data-document-number="<?= htmlspecialchars($student['document_number']); ?>" data-first-name="<?= htmlspecialchars($student['first_name']); ?>" data-last-name="<?= htmlspecialchars($student['last_name']); ?>" data-email="<?= htmlspecialchars($student['email']); ?>" data-semester="<?= htmlspecialchars($student['semester']); ?>">
                                 <i class="fa fa-edit"></i>
                             </button>
-                            <!-- Boton de elminar -->
                             <button type="button" class="btn btn-danger btn-sm" onclick="delete_student(<?=htmlspecialchars($student['id']); ?>)">
                                 <i class="fa fa-trash"></i>
                             </button>
@@ -134,7 +132,7 @@ ob_start();
 				<div class="modal-body">
                     <div class="form-group">
                         <label for="program_id">Programa academico</label>
-                        <select name="program_id" id="program_id" class="form-control">
+                        <select name="program_id" id="program_id" class="form-control select2">
                             <option value="">Seleccione un programa</option>
 <?php
                             foreach ($academic_programs as $program)
@@ -199,8 +197,7 @@ ob_start();
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="program_id_edit">Programa academico</label>
-                        <select name="program_id_edit" id="program_id_edit" class="form-control">
-                            <option value="">Seleccione un programa</option>
+                        <select name="program_id_edit" id="program_id_edit" class="form-control select2">
 <?php
                             foreach ($academic_programs as $program)
                             {
@@ -274,23 +271,22 @@ ob_start();
     });
 
     function show_edit(element) {
-        var id = $(element).closest('tr').find('td').eq(0).text();
-        var program_name = $(element).closest('tr').find('td').eq(4).text();
-        var document_number = $(element).closest('tr').find('td').eq(1).text();
-        var first_name = $(element).closest('tr').find('td').eq(2).text();
-        var last_name = $(element).closest('tr').find('td').eq(3).text();
-        var email = $(element).closest('tr').find('td').eq(6).text();
-        var semester = $(element).closest('tr').find('td').eq(5).text();
+        var id = $(element).data('id');
+        var program_id = $(element).data('program-id');
+        var document_number = $(element).data('document-number');
+        var first_name = $(element).data('first-name');
+        var last_name = $(element).data('last-name');
+        var email = $(element).data('email');
+        var semester = $(element).data('semester');
+
         $('#document_number_edit').val(document_number);
         $('#first_name_edit').val(first_name);
         $('#last_name_edit').val(last_name);
         $('#email_edit').val(email);
         $('#semester_edit').val(semester);
         $('#id').val(id);
-        
-        $('#program_id_edit option').filter(function() {
-            return $(this).text() == program_name;
-        }).prop('selected', true);
+
+        $('#program_id_edit').val(program_id).trigger('change');
 
         $('#edit_student').modal('show');
     }
