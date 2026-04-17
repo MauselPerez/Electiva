@@ -24,6 +24,10 @@ class SchedulesController {
         return $this->scheduleModel->getAllSchedulesNotCanceled();
     }
 
+    public function indexPending() {
+        return $this->scheduleModel->getPendingSchedules();
+    }
+
     // Registrar una nueva planificación
     public function create($data) {
         try {
@@ -38,31 +42,35 @@ class SchedulesController {
             $interval = new DateInterval('P1D');
             $daterange = new DatePeriod($start_date, $interval, $end_date);
             $user_id = $_SESSION['user_id'];
-            
-            $days = [];
+            $result = false;
+            $createdDays = 0;
+
             foreach ($daterange as $date) 
             {
                 $day = $date->format("N");
                 if (!($day != 5 && $day != 6)) 
                 {
-                    //$days[] = $date->format("Y-m-d");
                     $date = $date->format("Y-m-d");
                     $result = $this->scheduleModel->createSchedule([
                         'delivery_day' => $date,
                         'created_by' => $user_id
                     ]);
+
+                    if ($result) {
+                        $createdDays++;
+                    }
                 }
             }
 
-            if ($result) 
+            if ($createdDays > 0) 
             {
                 $_SESSION['message'] = "Planificación creada correctamente.";
                 $_SESSION['message_type'] = "success";
             }
             else 
             {
-                $_SESSION['message'] = "Error al crear la planificación.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message'] = "No se generaron jornadas nuevas dentro del rango seleccionado.";
+                $_SESSION['message_type'] = "warning";
             }
 
             header("Location: schedules.php");

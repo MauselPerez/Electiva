@@ -13,6 +13,10 @@ class DeliveryController {
         return $this->deliveryModel->getAllDeliveries();
     }
 
+    public function getScheduleOverview() {
+        return $this->deliveryModel->getDeliveryScheduleOverview();
+    }
+
     // Registrar nuevas entregas
     public function create($data) {
         try {
@@ -21,29 +25,14 @@ class DeliveryController {
             }
 
             $user_id = $_SESSION['user_id'];
-            $result = true;
+            $createdCount = $this->deliveryModel->createDeliveriesBatch(
+                $data['students'],
+                $data['delivery_scheduling_id'],
+                $user_id
+            );
 
-            foreach ($data['students'] as $student_id) {
-                $created = $this->deliveryModel->createDelivery([
-                    'student_id' => $student_id,
-                    'delivery_scheduling_id' => $data['delivery_scheduling_id'],
-                    'user_id' => $user_id,
-                ]);
-
-                if (!$created) {
-                    $result = false;
-                    break;
-                }
-            }
-
-            if ($result) {
-                $this->deliveryModel->updateDeliverySchedulingStatus($data['delivery_scheduling_id']);
-                $_SESSION['message'] = "Entregas de merienda registradas correctamente.";
-                $_SESSION['message_type'] = "success";
-            } else {
-                $_SESSION['message'] = "Error al registrar las entregas de merienda.";
-                $_SESSION['message_type'] = "danger";
-            }
+            $_SESSION['message'] = "Se registraron {$createdCount} entregas correctamente. Cuando finalice la jornada, márquela como ejecutada.";
+            $_SESSION['message_type'] = "success";
 
             header("Location: delivery.php");
             exit;
@@ -85,6 +74,62 @@ class DeliveryController {
 
     public function getAllDeliveries() {
         return $this->deliveryModel->getAllDeliveries();
+    }
+
+    public function completeSchedule($id) {
+        $schedule = $this->deliveryModel->getDeliveryScheduleOverviewById((int) $id);
+
+        if (!$schedule) {
+            $_SESSION['message'] = "La jornada seleccionada no existe.";
+            $_SESSION['message_type'] = "danger";
+            return;
+        }
+
+        if ((int) $schedule['status'] === 2) {
+            $_SESSION['message'] = "No se puede ejecutar una jornada anulada.";
+            $_SESSION['message_type'] = "danger";
+            return;
+        }
+
+        if ((int) $schedule['status'] === 1) {
+            $_SESSION['message'] = "La jornada ya estaba marcada como ejecutada.";
+            $_SESSION['message_type'] = "info";
+            return;
+        }
+
+        if ((int) $schedule['delivered_students'] === 0) {
+            $_SESSION['message'] = "Registra al menos una entrega antes de marcar la jornada como ejecutada.";
+            $_SESSION['message_type'] = "warning";
+            return;
+        }
+
+        $result = $this->deliveryModel->updateDeliverySchedulingStatus((int) $id, 1);
+        $_SESSION['message'] = $result
+            ? "Jornada marcada como ejecutada correctamente."
+            : "No fue posible marcar la jornada como ejecutada.";
+        $_SESSION['message_type'] = $result ? "success" : "danger";
+    }
+
+    public function reopenSchedule($id) {
+        $schedule = $this->deliveryModel->getDeliveryScheduleOverviewById((int) $id);
+
+        if (!$schedule) {
+            $_SESSION['message'] = "La jornada seleccionada no existe.";
+            $_SESSION['message_type'] = "danger";
+            return;
+        }
+
+        if ((int) $schedule['status'] !== 1) {
+            $_SESSION['message'] = "Solo las jornadas ejecutadas pueden reabrirse.";
+            $_SESSION['message_type'] = "warning";
+            return;
+        }
+
+        $result = $this->deliveryModel->updateDeliverySchedulingStatus((int) $id, 0);
+        $_SESSION['message'] = $result
+            ? "Jornada reabierta correctamente."
+            : "No fue posible reabrir la jornada.";
+        $_SESSION['message_type'] = $result ? "success" : "danger";
     }
 }
 ?>

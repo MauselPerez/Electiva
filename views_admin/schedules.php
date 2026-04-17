@@ -503,13 +503,17 @@ ob_start();
         <div class="row align-items-center no-gutters schedule-hero-body">
             <div class="col-lg-8">
                 <div class="schedule-hero-title">Cronograma de entregas</div> 
+                <p class="delivery-text">
+                    Visualiza y gestiona las planificaciones de entrega registradas. Puedes crear nuevas fechas seleccionando un rango, el sistema tomará automáticamente los viernes y sábados dentro de ese período para generar las planificaciones.
+                </p>
+
             </div>
             <div class="col-lg-4">
                 <div class="hero-actions">
-                    <button type="button" class="btn-sm btn-primary" data-toggle="modal" data-target="#new_schedule">
+                    <button type="button" class="btn-sm btn-success" data-toggle="modal" data-target="#new_schedule">
                         <i class="fas fa-plus"></i> Nueva planificación
                     </button>
-                    <button class="btn-sm btn-primary" style="float: right;" id="return">
+                    <button class="btn-sm btn-warning" style="float: right;" id="return">
                         <i class="fas fa-arrow-left"></i>  Regresar
                     </button>
                 </div>

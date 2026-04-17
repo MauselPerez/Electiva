@@ -34,6 +34,10 @@ class ReportsController {
         return $data;
     }
 
+    public function getScheduleStatusSummary() {
+        return $this->reportsModel->getScheduleStatusSummary();
+    }
+
     public function getDelivered() {
         $data = $this->reportsModel->getDelivered();
         return $data['delivered'];
@@ -42,6 +46,14 @@ class ReportsController {
     public function getDeliveriesByMonth() {
         $data = $this->reportsModel->getDeliveriesByMonth();
         return $data;
+    }
+
+    public function getUpcomingSchedules($limit = 5) {
+        return $this->reportsModel->getUpcomingSchedules($limit);
+    }
+
+    public function getDeliveriesByProgram() {
+        return $this->reportsModel->getDeliveriesByProgram();
     }
 
     // Buscar estudiantes que recibieron entrega por ID de planificación

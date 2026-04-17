@@ -43,10 +43,10 @@ ob_start();
     <div class="col-md-12" id="title">
         <h3 class="page-header" style="padding-top: 5px;">
             Usuarios 
-            <button class="btn-sm btn-primary" style="float: right; margin-top:3px;" id="return">
+            <button class="btn-sm btn-warning" style="float: right; margin-top:3px;" id="return">
                 <i class="fas fa-arrow-left"></i>  Regresar
             </button>
-            <button type="button" class="btn-sm btn-primary" data-toggle="modal" data-target="#new_user" style="float: right; margin-top:3px; margin-right: 5px;">
+            <button type="button" class="btn-sm btn-success" data-toggle="modal" data-target="#new_user" style="float: right; margin-top:3px; margin-right: 5px;">
                 <i class="fas fa-save"></i>  Nuevo Usuario
             </button>
         </h3>
