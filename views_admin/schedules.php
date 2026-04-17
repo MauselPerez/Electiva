@@ -327,8 +327,8 @@ ob_start();
 
     .schedule-table thead th,
     .schedule-table tfoot th {
-        background: #17324d;
-        border-color: #17324d;
+        background: #343a40;
+        border-color: #343a40;
         color: #fff;
     }
 
@@ -506,11 +506,11 @@ ob_start();
             </div>
             <div class="col-lg-4">
                 <div class="hero-actions">
-                    <button class="btn btn-light hero-btn" id="return">
-                        <i class="fas fa-arrow-left mr-1"></i> Regresar
+                    <button type="button" class="btn-sm btn-primary" data-toggle="modal" data-target="#new_schedule">
+                        <i class="fas fa-plus"></i> Nueva planificación
                     </button>
-                    <button type="button" class="btn btn-warning hero-btn" data-toggle="modal" data-target="#new_schedule">
-                        <i class="fas fa-plus mr-1"></i> Nueva planificación
+                    <button class="btn-sm btn-primary" style="float: right;" id="return">
+                        <i class="fas fa-arrow-left"></i>  Regresar
                     </button>
                 </div>
             </div>
