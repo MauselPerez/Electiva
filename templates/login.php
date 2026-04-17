@@ -55,10 +55,10 @@
             <!-- Segunda columna -->
             <div class="col-lg-6 d-flex align-items-center h-100">
                 <div class="card-body p-md-5 mx-md-4">
-                    <div class="text-center">
-                        <h1 class="mt-1 mb-5 pb-1">Well Snack</h1>
-                    </div>
                     <form action="../controllers/login_controller.php" method="POST" autocomplete="off" style="margin: 100px;">
+                        <div class="text-center">
+                            <img src="../imgs/logo_well_snack.png" style="width: 500px;" alt="logo">
+                        </div>
                         <p><b>Ingrese sus credenciales de acceso</b></p>
                         <div class="form-outline mb-4">
                             <label class="form-label" for="username">Usuario</label>

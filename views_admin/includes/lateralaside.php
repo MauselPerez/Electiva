@@ -1,7 +1,8 @@
 <!-- Brand Logo -->
 <a href="index.php" class="brand-logo">
-  <img src="../imgs/logo.JPG" alt="Logo Infotep" class="brand-image img-circle elevation-3" style="display: block; margin: 0 auto; height: 9em; margin-top: 10px;" width="150">
+  <img src="../imgs/logo_well_snack_only.png" alt="Logo Well Snack" class="brand-image img-circle" style="display: block;  height: 15em; margin-top: 10px;" width="250">
 </a>
+
 
 <!-- Sidebar -->
 <div class="sidebar ">
