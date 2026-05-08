@@ -796,6 +796,8 @@ ob_start();
         let html5Qr = null;
         let qrAutoSearchTimer = null;
         let lastQrAutoSearchedValue = '';
+        let scannerBuffer = '';
+        let scannerLastKeyAt = 0;
 
         $('#table_deliveries').DataTable({
             responsive: true,
@@ -851,6 +853,20 @@ ob_start();
 
         function getSelectedScheduleId() {
             return $('#delivery_scheduling_id').val();
+        }
+
+        function normalizeQrCode(rawValue) {
+            const value = String(rawValue || '').trim().replace(/\s+/g, '');
+            if (!value) {
+                return '';
+            }
+
+            if (/^ID_\d+$/i.test(value)) {
+                return value.toUpperCase();
+            }
+
+            const match = value.match(/ID_\d+/i);
+            return match ? match[0].toUpperCase() : '';
         }
 
         function renderVerificationCard(student, alreadyDelivered) {
@@ -920,17 +936,18 @@ ob_start();
         }
 
         $('#btn_search_qr').on('click', function() {
-            const qrCode = $('#qr_input').val().trim();
+            const qrCode = normalizeQrCode($('#qr_input').val());
             if (!qrCode) {
                 toastr.warning('Escanee o escriba un código QR.');
                 return;
             }
 
+            $('#qr_input').val(qrCode);
             requestQrLookup(qrCode);
         });
 
         $('#qr_input').on('input', function() {
-            const qrCode = $(this).val().trim();
+            const qrCode = normalizeQrCode($(this).val());
 
             if (qrAutoSearchTimer) {
                 clearTimeout(qrAutoSearchTimer);
@@ -939,7 +956,7 @@ ob_start();
             // La pistola suele escribir en ráfaga; esperamos un breve silencio
             // para lanzar la búsqueda automática cuando el QR esté completo.
             qrAutoSearchTimer = setTimeout(function() {
-                if (!/^ID_\d+$/.test(qrCode)) {
+                if (!qrCode) {
                     return;
                 }
 
@@ -947,6 +964,7 @@ ob_start();
                     return;
                 }
 
+                $('#qr_input').val(qrCode);
                 lastQrAutoSearchedValue = qrCode;
                 requestQrLookup(qrCode);
             }, 140);
@@ -956,6 +974,36 @@ ob_start();
             if (event.key === 'Enter') {
                 event.preventDefault();
                 $('#btn_search_qr').trigger('click');
+            }
+        });
+
+        $(document).on('keydown', function(event) {
+            if (!$('#new_delivery').hasClass('show')) {
+                return;
+            }
+
+            const now = Date.now();
+            if (now - scannerLastKeyAt > 120) {
+                scannerBuffer = '';
+            }
+            scannerLastKeyAt = now;
+
+            if (event.key === 'Enter') {
+                const qrCode = normalizeQrCode(scannerBuffer);
+                scannerBuffer = '';
+
+                if (!qrCode || qrCode === lastQrAutoSearchedValue) {
+                    return;
+                }
+
+                $('#qr_input').val(qrCode);
+                lastQrAutoSearchedValue = qrCode;
+                requestQrLookup(qrCode);
+                return;
+            }
+
+            if (event.key.length === 1) {
+                scannerBuffer += event.key;
             }
         });
 
