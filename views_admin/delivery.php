@@ -376,6 +376,71 @@ ob_start();
         text-align: center;
     }
 
+    .qr-scan-box {
+        background: #f3f8ff;
+        border: 1px dashed #9fc0dd;
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+    .qr-scan-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .qr-help {
+        color: #56728d;
+        font-size: 0.83rem;
+        margin-top: 7px;
+    }
+
+    .verify-student {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 14px;
+        align-items: center;
+        background: #f8fbff;
+        border: 1px solid #e0ebf6;
+        border-radius: 12px;
+        padding: 12px;
+    }
+
+    .verify-student img,
+    .verify-placeholder {
+        width: 92px;
+        height: 92px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 2px solid #dce6ef;
+        background: #eef4fb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #5c7893;
+        font-size: 2rem;
+    }
+
+    .verify-meta {
+        display: grid;
+        gap: 5px;
+    }
+
+    .verify-meta strong {
+        color: #23384c;
+        font-size: 1.03rem;
+    }
+
+    .verify-meta span {
+        color: #57718b;
+        font-size: 0.9rem;
+    }
+
+    #camera-reader {
+        width: 100%;
+        min-height: 280px;
+    }
+
     @media (max-width: 991.98px) {
         .delivery-hero-body {
             padding: 22px 18px;
@@ -581,6 +646,26 @@ ob_start();
                     <div class="helper-note mb-3">
                         Selecciona una jornada pendiente y marca los estudiantes que recibieron la merienda. El día seguirá pendiente hasta que lo cierres manualmente desde el panel de jornadas.
                     </div>
+                    <div class="qr-scan-box mb-3">
+                        <h6 class="mb-2"><i class="fas fa-qrcode mr-1"></i> Registro rápido por QR</h6>
+                        <div class="input-group">
+                            <input type="text" id="qr_input" class="form-control" placeholder="Escanea aquí el código (ej: ID_12345678)">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-primary" id="btn_search_qr">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="qr-scan-actions mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn_open_camera">
+                                <i class="fas fa-camera mr-1"></i> Escanear con cámara
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btn_clear_qr">
+                                <i class="fas fa-eraser mr-1"></i> Limpiar
+                            </button>
+                        </div>
+                        <div class="qr-help">El lector tipo pistola escribe el QR como teclado y termina con Enter. Se valida la jornada y se abre una ventana de confirmación.</div>
+                    </div>
                     <div class="row">
                         <div class="col-md-8 col-lg-8">
                             <h5>Estudiantes activos</h5>
@@ -663,11 +748,55 @@ ob_start();
     </div>
 </div>
 
+<div class="modal fade" id="qr_verify_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar entrega por QR</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="verify_student_card" class="verify-student"></div>
+                <div id="verify_message" class="mt-2 text-muted"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Rechazar</button>
+                <button type="button" class="btn btn-success" id="btn_accept_qr_delivery">Aceptar entrega</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="qr_camera_modal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Escanear QR con cámara</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="camera-reader"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" defer></script>
 <script>
     $(document).ready(function() {
+        let scannedStudent = null;
+        let scannedQrCode = '';
+        let html5Qr = null;
+        let qrAutoSearchTimer = null;
+        let lastQrAutoSearchedValue = '';
+
         $('#table_deliveries').DataTable({
             responsive: true,
             autoWidth: false,
@@ -718,6 +847,197 @@ ob_start();
             $('#table_delivery_scheduling tbody tr').removeClass('selected-row');
             $(this).addClass('selected-row');
             $('#delivery_scheduling_id').val(scheduleTable.row(this).data()[0]);
+        });
+
+        function getSelectedScheduleId() {
+            return $('#delivery_scheduling_id').val();
+        }
+
+        function renderVerificationCard(student, alreadyDelivered) {
+            const photoHtml = student.photo_path
+                ? '<img src="../' + student.photo_path + '" alt="Foto estudiante">'
+                : '<div class="verify-placeholder"><i class="fas fa-user"></i></div>';
+
+            $('#verify_student_card').html(
+                photoHtml +
+                '<div class="verify-meta">' +
+                '<strong>' + student.first_name + ' ' + student.last_name + '</strong>' +
+                '<span>Cédula: ' + student.document_number + '</span>' +
+                '<span>Programa: ' + student.academic_program + '</span>' +
+                '<span>Semestre: ' + student.semester + '</span>' +
+                '</div>'
+            );
+
+            if (alreadyDelivered) {
+                $('#verify_message').html('<span class="text-warning">Este estudiante ya tiene entrega registrada para esta jornada.</span>');
+                $('#btn_accept_qr_delivery').prop('disabled', true);
+            } else {
+                $('#verify_message').html('<span class="text-success">Verifique la identidad y pulse aceptar para registrar la entrega.</span>');
+                $('#btn_accept_qr_delivery').prop('disabled', false);
+            }
+        }
+
+        function requestQrLookup(qrCode) {
+            const scheduleId = getSelectedScheduleId();
+            if (!scheduleId) {
+                toastr.warning('Seleccione una jornada pendiente antes de escanear.');
+                return;
+            }
+
+            $.ajax({
+                url: '../controllers/delivery_controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'getStudentByQrForDelivery',
+                    qr_code: qrCode,
+                    delivery_scheduling_id: scheduleId
+                },
+                success: function(response) {
+                    scannedStudent = response.student;
+                    scannedQrCode = qrCode;
+                    renderVerificationCard(response.student, response.already_delivered);
+                    $('#qr_verify_modal').modal('show');
+                },
+                error: function(xhr) {
+                    const message = (xhr.responseJSON && xhr.responseJSON.message)
+                        ? xhr.responseJSON.message
+                        : 'No fue posible validar el código QR.';
+                    toastr.error(message);
+                }
+            });
+        }
+
+        function stopCameraScanner() {
+            if (html5Qr) {
+                html5Qr.stop().then(function() {
+                    html5Qr.clear();
+                    html5Qr = null;
+                }).catch(function() {
+                    html5Qr = null;
+                });
+            }
+        }
+
+        $('#btn_search_qr').on('click', function() {
+            const qrCode = $('#qr_input').val().trim();
+            if (!qrCode) {
+                toastr.warning('Escanee o escriba un código QR.');
+                return;
+            }
+
+            requestQrLookup(qrCode);
+        });
+
+        $('#qr_input').on('input', function() {
+            const qrCode = $(this).val().trim();
+
+            if (qrAutoSearchTimer) {
+                clearTimeout(qrAutoSearchTimer);
+            }
+
+            // La pistola suele escribir en ráfaga; esperamos un breve silencio
+            // para lanzar la búsqueda automática cuando el QR esté completo.
+            qrAutoSearchTimer = setTimeout(function() {
+                if (!/^ID_\d+$/.test(qrCode)) {
+                    return;
+                }
+
+                if (qrCode === lastQrAutoSearchedValue) {
+                    return;
+                }
+
+                lastQrAutoSearchedValue = qrCode;
+                requestQrLookup(qrCode);
+            }, 140);
+        });
+
+        $('#qr_input').on('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                $('#btn_search_qr').trigger('click');
+            }
+        });
+
+        $('#btn_clear_qr').on('click', function() {
+            $('#qr_input').val('').focus();
+            scannedStudent = null;
+            scannedQrCode = '';
+            lastQrAutoSearchedValue = '';
+        });
+
+        $('#btn_open_camera').on('click', function() {
+            const scheduleId = getSelectedScheduleId();
+            if (!scheduleId) {
+                toastr.warning('Seleccione una jornada pendiente antes de abrir la cámara.');
+                return;
+            }
+
+            $('#qr_camera_modal').modal('show');
+        });
+
+        $('#qr_camera_modal').on('shown.bs.modal', function() {
+            if (!window.Html5Qrcode) {
+                toastr.error('No fue posible cargar el lector de cámara.');
+                return;
+            }
+
+            html5Qr = new Html5Qrcode('camera-reader');
+            html5Qr.start(
+                { facingMode: 'environment' },
+                { fps: 10, qrbox: 220 },
+                function(decodedText) {
+                    $('#qr_input').val(decodedText);
+                    requestQrLookup(decodedText);
+                    $('#qr_camera_modal').modal('hide');
+                },
+                function() {}
+            ).catch(function() {
+                toastr.error('No se pudo iniciar la cámara para escaneo QR.');
+            });
+        });
+
+        $('#qr_camera_modal').on('hidden.bs.modal', function() {
+            stopCameraScanner();
+        });
+
+        $('#btn_accept_qr_delivery').on('click', function() {
+            const scheduleId = getSelectedScheduleId();
+            if (!scannedQrCode || !scheduleId) {
+                toastr.warning('No hay un código QR listo para registrar.');
+                return;
+            }
+
+            $.ajax({
+                url: '../controllers/delivery_controller.php',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    action: 'registerDeliveryByQr',
+                    qr_code: scannedQrCode,
+                    delivery_scheduling_id: scheduleId
+                },
+                success: function() {
+                    $('#qr_verify_modal').modal('hide');
+                    $('#qr_input').val('').focus();
+                    lastQrAutoSearchedValue = '';
+                    toastr.success('Entrega registrada correctamente por QR.');
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 900);
+                },
+                error: function(xhr) {
+                    const message = (xhr.responseJSON && xhr.responseJSON.message)
+                        ? xhr.responseJSON.message
+                        : 'No fue posible registrar la entrega por QR.';
+                    toastr.error(message);
+                }
+            });
+        });
+
+        $('#qr_verify_modal').on('hidden.bs.modal', function() {
+            scannedStudent = null;
+            scannedQrCode = '';
         });
 
         $('#check_all_students').click(function() {

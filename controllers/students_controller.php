@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 require_once '../models/students.php';
 
 class StudentsController {
@@ -81,8 +79,6 @@ class StudentsController {
             ) {
                 throw new Exception("Todos los campos son obligatorios.");
             }
-
-            echo '<pre>'; print_r($files); echo '</pre>'; die();
 
             $photoPath = $this->uploadPhoto($files['photo'] ?? null);
 
