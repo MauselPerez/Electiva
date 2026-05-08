@@ -1,2 +1,6 @@
 * Crear tabla personas donde estaran campos generales nombres, apellidos, cedula y de ahí salen la tabla usuarios y estudiantes con campos especificos.
 * Crear tabla de rol.
+
+-- SQL para funcionalidad de foto de estudiante (ejecutar una sola vez)
+ALTER TABLE ws_students
+ADD COLUMN photo_path VARCHAR(255) NULL AFTER semester;

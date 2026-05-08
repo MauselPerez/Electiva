@@ -9,12 +9,12 @@ require_once '../controllers/students_controller.php';
 $controller = new StudentsController();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'create') {
-    $controller->create($_POST);
+    $controller->create($_POST, $_FILES);
     header('Location: students.php');
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'update') {
-    $controller->update($_POST['id'], $_POST);
+    $controller->update($_POST['id'], $_POST, $_FILES);
     header('Location: students.php');
 }
 
@@ -56,13 +56,14 @@ ob_start();
             <thead class="thead-dark">
                 <tr>
                     <th>ID</th>
+                    <th>Foto</th>
                     <th>Cedula</th>
                     <th>Nombres</th>
                     <th>Apellidos</th>
                     <th>Programa</th>
                     <th>Semestre</th>
                     <th>Email</th>
-                    <th style="width: 7%;"></th>
+                    <th style="width: 13%;"></th>
                 </tr>
             </thead>
             <tbody>
@@ -75,6 +76,13 @@ ob_start();
 ?>
                     <tr>
                         <td><?=htmlspecialchars($student['id']); ?></td>
+                        <td style="text-align:center;">
+<?php if (!empty($student['photo_path'])) { ?>
+                            <img src="../<?= htmlspecialchars($student['photo_path']); ?>" alt="Foto estudiante" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid #ced4da;">
+<?php } else { ?>
+                            <span class="badge badge-secondary" style="padding:8px 10px;">Sin foto</span>
+<?php } ?>
+                        </td>
                         <td><?=htmlspecialchars($student['document_number']); ?></td>
                         <td><?=htmlspecialchars($student['first_name']); ?></td>
                         <td><?=htmlspecialchars($student['last_name']); ?></td>
@@ -84,6 +92,9 @@ ob_start();
                         <td>
                             <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($student['id']); ?>" data-program-id="<?= htmlspecialchars($student['academic_program_id']); ?>" data-document-number="<?= htmlspecialchars($student['document_number']); ?>" data-first-name="<?= htmlspecialchars($student['first_name']); ?>" data-last-name="<?= htmlspecialchars($student['last_name']); ?>" data-email="<?= htmlspecialchars($student['email']); ?>" data-semester="<?= htmlspecialchars($student['semester']); ?>">
                                 <i class="fa fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-info btn-sm" onclick="view_card(<?=htmlspecialchars($student['id']); ?>)" title="Ver carnet QR">
+                                <i class="fa fa-qrcode"></i>
                             </button>
                             <button type="button" class="btn btn-danger btn-sm" onclick="delete_student(<?=htmlspecialchars($student['id']); ?>)">
                                 <i class="fa fa-trash"></i>
@@ -97,7 +108,7 @@ ob_start();
             {
 ?>
                 <tr>
-                    <td colspan="8" style="text-align: center;"><span style="background-color:#cccc00; padding: 10px; color:#ffffff; font-size:large;"><b>No hay estudiantes registrados</b></span></td>
+                    <td colspan="9" style="text-align: center;"><span style="background-color:#cccc00; padding: 10px; color:#ffffff; font-size:large;"><b>No hay estudiantes registrados</b></span></td>
                 </tr>
 <?php
             }
@@ -106,6 +117,7 @@ ob_start();
             <tfoot class="thead-dark">
                 <tr>
                     <th>ID</th>
+                    <th>Foto</th>
                     <th>Cedula</th>
                     <th>Nombres</th>
                     <th>Apellidos</th>
@@ -128,7 +140,7 @@ ob_start();
 					<span aria-hidden="true">&times;</span>
 				</button>
 			</div>
-			<form method="POST" action="students.php?action=create" autocomplete="off">
+            <form method="POST" action="students.php?action=create" autocomplete="off" enctype="multipart/form-data">
 				<div class="modal-body">
                     <div class="form-group">
                         <label for="program_id">Programa academico</label>
@@ -176,6 +188,11 @@ ob_start();
                             <option value="10">X</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="photo">Foto del estudiante</label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/png,image/jpeg,image/webp">
+                        <small class="form-text text-muted">Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 5MB.</small>
+                    </div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -193,7 +210,7 @@ ob_start();
                 <h4>Editar estudiante</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <form method="POST" action="students.php?action=update">
+            <form method="POST" action="students.php?action=update" enctype="multipart/form-data">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="program_id_edit">Programa academico</label>
@@ -239,6 +256,11 @@ ob_start();
                             <option value="9">IX</option>
                             <option value="10">X</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo_edit">Actualizar foto del estudiante</label>
+                        <input type="file" class="form-control" id="photo_edit" name="photo_edit" accept="image/png,image/jpeg,image/webp">
+                        <small class="form-text text-muted">Si no seleccionas una foto, se conservará la actual.</small>
                     </div>
                     <input type="hidden" name="id" id="id">
                 </div>
@@ -296,6 +318,10 @@ ob_start();
         if (confirm_delete) {
             window.location.href = 'students.php?action=delete&id=' + id;
         }
+    }
+
+    function view_card(id) {
+        window.open('student_card.php?id=' + id, '_blank');
     }
 </script>
 <?php
