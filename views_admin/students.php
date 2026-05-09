@@ -1,0 +1,330 @@
+<?php
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../templates/login.php");
+    exit();
+}
+require_once '../controllers/students_controller.php';
+
+$controller = new StudentsController();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'create') {
+    $controller->create($_POST, $_FILES);
+    header('Location: students.php');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'update') {
+    $controller->update($_POST['id'], $_POST, $_FILES);
+    header('Location: students.php');
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
+    $controller->delete($_GET['id']);
+    header('Location: students.php');
+}
+
+$students = $controller->index();
+$academic_programs = $controller->getAllPrograms();
+$title = "Estudiantes";
+ob_start();
+?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<style>
+    #title {
+        background-color: white;
+        border: 2px solid gray;
+        border-radius: 10px;
+        margin-top: 5px;
+    }
+</style>
+<div class="row">
+    <div class="col-md-12" id="title">
+        <h3 class="page-header" style="padding-top: 5px;">
+            Estudiantes 
+            <button class="btn-sm btn-warning" style="float: right; margin-top:3px;" id="return">
+                <i class="fas fa-arrow-left"></i>  Regresar
+            </button>
+            <button type="button" class="btn-sm btn-success" data-toggle="modal" data-target="#new_student" style="float: right; margin-top:3px; margin-right: 5px;">
+                <i class="fas fa-save"></i>  Nuevo Estudiante
+            </button>
+        </h3>
+        
+    </div>
+    <div class="col-md-12" id="title" style="padding-top: 20px;">
+        <table id="table" class="display table table-bordered" style="width:100%">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Foto</th>
+                    <th>Cedula</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Programa</th>
+                    <th>Semestre</th>
+                    <th>Email</th>
+                    <th style="width: 13%;"></th>
+                </tr>
+            </thead>
+            <tbody>
+<?php 
+            if (count($students) > 0)
+            {
+
+                foreach ($students as $student)
+                { 
+?>
+                    <tr>
+                        <td><?=htmlspecialchars($student['id']); ?></td>
+                        <td style="text-align:center;">
+<?php if (!empty($student['photo_path'])) { ?>
+                            <img src="../<?= htmlspecialchars($student['photo_path']); ?>" alt="Foto estudiante" style="width:42px; height:42px; border-radius:50%; object-fit:cover; border:2px solid #ced4da;">
+<?php } else { ?>
+                            <span class="badge badge-secondary" style="padding:8px 10px;">Sin foto</span>
+<?php } ?>
+                        </td>
+                        <td><?=htmlspecialchars($student['document_number']); ?></td>
+                        <td><?=htmlspecialchars($student['first_name']); ?></td>
+                        <td><?=htmlspecialchars($student['last_name']); ?></td>
+                        <td><?=htmlspecialchars($student['name']); ?></td>
+                        <td><?=htmlspecialchars($student['semester']); ?></td>
+                        <td><?=htmlspecialchars($student['email']); ?></td>
+                        <td>
+                            <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($student['id']); ?>" data-program-id="<?= htmlspecialchars($student['academic_program_id']); ?>" data-document-number="<?= htmlspecialchars($student['document_number']); ?>" data-first-name="<?= htmlspecialchars($student['first_name']); ?>" data-last-name="<?= htmlspecialchars($student['last_name']); ?>" data-email="<?= htmlspecialchars($student['email']); ?>" data-semester="<?= htmlspecialchars($student['semester']); ?>">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-info btn-sm" onclick="view_card(<?=htmlspecialchars($student['id']); ?>)" title="Ver carnet QR">
+                                <i class="fa fa-qrcode"></i>
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="delete_student(<?=htmlspecialchars($student['id']); ?>)">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+<?php 
+                } 
+            }
+            else
+            {
+?>
+                <tr>
+                    <td colspan="9" style="text-align: center;"><span style="background-color:#cccc00; padding: 10px; color:#ffffff; font-size:large;"><b>No hay estudiantes registrados</b></span></td>
+                </tr>
+<?php
+            }
+?>
+            </tbody>
+            <tfoot class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Foto</th>
+                    <th>Cedula</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Programa</th>
+                    <th>Semestre</th>
+                    <th>Email</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+<div class="modal" id="new_student" tabindex="-1" role="dialog" aria-labelledby="DateRangeModalLabel" aria-hidden="true">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="DateRangeModalLabel">Registrar estudiante</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+            <form method="POST" action="students.php?action=create" autocomplete="off" enctype="multipart/form-data">
+				<div class="modal-body">
+                    <div class="form-group">
+                        <label for="program_id">Programa academico</label>
+                        <select name="program_id" id="program_id" class="form-control select2">
+                            <option value="">Seleccione un programa</option>
+<?php
+                            foreach ($academic_programs as $program)
+                            {
+?>
+                                <option value="<?=htmlspecialchars($program['id']); ?>"><?=htmlspecialchars($program['name']); ?></option>
+<?php
+                            }
+?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="document_number">Cedula</label>
+                        <input type="text" class="form-control" id="document_number" name="document_number" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="first_name">Nombres</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name">Apellidos</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="semester">Semestre</label>
+                        <select name="semester" id="semester" class="form-control" required>
+                            <option value="">Seleccione un semestre</option>
+                            <option value="1">I</option>
+                            <option value="2">II</option>
+                            <option value="3">III</option>
+                            <option value="4">IV</option>
+                            <option value="5">V</option>
+                            <option value="6">VI</option>
+                            <option value="7">VII</option>
+                            <option value="8">VIII</option>
+                            <option value="9">IX</option>
+                            <option value="10">X</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo">Foto del estudiante</label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/png,image/jpeg,image/webp">
+                        <small class="form-text text-muted">Formatos permitidos: JPG, PNG o WEBP. Tamaño máximo: 5MB.</small>
+                    </div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+					<button type="submit" class="btn btn-primary">Guardar</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div id="edit_student" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Editar estudiante</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form method="POST" action="students.php?action=update" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="program_id_edit">Programa academico</label>
+                        <select name="program_id_edit" id="program_id_edit" class="form-control select2">
+<?php
+                            foreach ($academic_programs as $program)
+                            {
+?>
+                                <option value="<?=htmlspecialchars($program['id']); ?>"><?=htmlspecialchars($program['name']); ?></option>
+<?php
+                            }
+?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="document_number_edit">Cedula</label>
+                        <input type="text" class="form-control" id="document_number_edit" name="document_number_edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="first_name_edit">Nombres</label>
+                        <input type="text" class="form-control" id="first_name_edit" name="first_name_edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="last_name_edit">Apellidos</label>
+                        <input type="text" class="form-control" id="last_name_edit" name="last_name_edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email_edit">Email</label>
+                        <input type="text" class="form-control" id="email_edit" name="email_edit" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="semester_edit">Semestre</label>
+                        <select name="semester_edit" id="semester_edit" class="form-control" required>
+                            <option value="">Seleccione un semestre</option>
+                            <option value="1">I</option>
+                            <option value="2">II</option>
+                            <option value="3">III</option>
+                            <option value="4">IV</option>
+                            <option value="5">V</option>
+                            <option value="6">VI</option>
+                            <option value="7">VII</option>
+                            <option value="8">VIII</option>
+                            <option value="9">IX</option>
+                            <option value="10">X</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="photo_edit">Actualizar foto del estudiante</label>
+                        <input type="file" class="form-control" id="photo_edit" name="photo_edit" accept="image/png,image/jpeg,image/webp">
+                        <small class="form-text text-muted">Si no seleccionas una foto, se conservará la actual.</small>
+                    </div>
+                    <input type="hidden" name="id" id="id">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>  
+<script>
+    $(document).ready(function() {
+        $('#table').DataTable({
+            "language": {
+                "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+            }
+        });
+        $('#return').click(function() {
+            window.location.href = 'snacks.php';
+        });
+
+        $message = "<?=$_SESSION['message'] ?? ''?>";
+        $message_type = "<?=$_SESSION['message_type'] ?? ''?>";
+        if ($message) {
+            toastr[$message_type]($message);
+            <?php unset($_SESSION['message']); ?>
+            <?php unset($_SESSION['message_type']); ?>
+        }
+    });
+
+    function show_edit(element) {
+        var id = $(element).data('id');
+        var program_id = $(element).data('program-id');
+        var document_number = $(element).data('document-number');
+        var first_name = $(element).data('first-name');
+        var last_name = $(element).data('last-name');
+        var email = $(element).data('email');
+        var semester = $(element).data('semester');
+
+        $('#document_number_edit').val(document_number);
+        $('#first_name_edit').val(first_name);
+        $('#last_name_edit').val(last_name);
+        $('#email_edit').val(email);
+        $('#semester_edit').val(semester);
+        $('#id').val(id);
+
+        $('#program_id_edit').val(program_id).trigger('change');
+
+        $('#edit_student').modal('show');
+    }
+
+    function delete_student(id) {
+        var confirm_delete = confirm('¿Está seguro de eliminar este estudiante?');
+        if (confirm_delete) {
+            window.location.href = 'students.php?action=delete&id=' + id;
+        }
+    }
+
+    function view_card(id) {
+        window.open('student_card.php?id=' + id, '_blank');
+    }
+</script>
+<?php
+$content = ob_get_clean();
+include '../templates/base_modules.php';
+?>

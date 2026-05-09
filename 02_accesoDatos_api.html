@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice</title>
+</head>
+<body>
+    <form action="">
+        <select name="categorys" id="categorys" onchange="load_products()">
+            <option value="0" selected>Seleccione la Categoria</option>
+        </select>
+
+        <select name="products" id="products">
+            <option value="0" selected>Seleccione el Producto</option>
+        </select>
+
+    </form>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function(event) {
+            //Cuando la pagina se carga
+            load_categorys();
+        });
+
+        //Cargar las categorias
+        load_categorys = async () => {
+            try {                                    
+                fetch("https://fakestoreapi.com/products/categories", {             
+                    method: 'GET', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {   
+                    loadSelectCategorys(data);
+                    //loadSelectCategorys(data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        //Creo y cargo las opciones de las categorias en el select de categorias
+        const loadSelectCategorys = async(datos)=> {        
+            var select = document.getElementById("categorys");
+            var option = document.createElement("option");
+            datos.forEach(category => {            
+                var option = document.createElement('option');
+                var optionText = document.createTextNode(category);
+                option.appendChild(optionText)
+                option.setAttribute('value',category);
+                select.appendChild(option); 
+            })        
+        }
+
+        //Limpio el select de productos
+        const limpiarProductFromCategory = () => {
+            var select = document.getElementById("products");
+            for (let i = select.options.length; i >= 0; i--) {
+                select.remove(i);
+            }
+        };
+
+        //Creo y cargo las opciones de los productos en el select de productos
+        const loadSelectProducts = async(datos)=> {        
+            var select = document.getElementById("products");
+            var option = document.createElement("option");
+            datos.forEach(product => {            
+                var option = document.createElement('option');
+                var optionText = document.createTextNode(product.title);
+                option.appendChild(optionText)
+                option.setAttribute('value',product.id);
+                select.appendChild(option); 
+            })        
+        }
+        
+        //Traer los productos de la API
+        const Products = async (params) => {
+            const json = {
+                category:params,
+            } 
+            try {                                    
+                fetch("https://fakestoreapi.com/products/category/"+json.category, {             
+                    method: 'GET', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {                    
+                    loadSelectProducts(data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        //Cargar los productos
+        const load_products = () => {
+            var category = document.getElementById("categorys").value;
+            if (category != 0) {
+                limpiarProductFromCategory();
+                Products(category);
+            } else {
+                limpiarProductFromCategory();
+            }
+        }
+    </script>
+</body>
+</html>
