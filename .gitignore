@@ -9,3 +9,6 @@
 
 #Ignora models admin
 models/models_admin.php
+
+#Ignora configuracion de base de datos
+config/db.php
