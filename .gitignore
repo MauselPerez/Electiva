@@ -2,10 +2,14 @@
 .DS_store
 
 #Ignora templates
-#templates/AdminLTE-3.0.5/
+templates/AdminLTE-3.0.5/
 
 #Ignora models
-#models/
+models/
 
 #Ignora models admin
 models/models_admin.php
+
+imgs/students/
+
+index.php

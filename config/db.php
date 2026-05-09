@@ -1,9 +1,9 @@
 <?php
 // Configuración de la base de datos
 $dbHost = 'localhost';
-$dbName = 'db_project';
-$dbUser = 'g4';
-$dbPass = 'Gt4s.frc-kvCOl221337fc';
+$dbName = 'gzdbkvwa_db_project';
+$dbUser = 'gzdbkvwa_goparty_user';
+$dbPass = 'j2UCemCV66kG3wz';
 
 try {
     // Crear la conexión PDO
