@@ -48,6 +48,14 @@ class ReportsController {
         return $data;
     }
 
+    public function getStudentsWithoutDeliveries() {
+        return $this->reportsModel->getStudentsWithoutDeliveries();
+    }
+
+    public function getStudentsMissingDeliveries() {
+        return $this->reportsModel->getStudentsMissingDeliveries();
+    }
+
     public function getUpcomingSchedules($limit = 5) {
         return $this->reportsModel->getUpcomingSchedules($limit);
     }

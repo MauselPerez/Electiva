@@ -18,6 +18,8 @@ $deliveriesByMonth = $reportsController->getDeliveriesByMonth();
 $scheduleStatusSummary = $reportsController->getScheduleStatusSummary();
 $upcomingSchedules = $reportsController->getUpcomingSchedules(5);
 $deliveriesByProgram = $reportsController->getDeliveriesByProgram();
+$studentsWithoutDeliveries = $reportsController->getStudentsWithoutDeliveries();
+$studentsMissingDeliveries = $reportsController->getStudentsMissingDeliveries();
 $title = "Reporte de entregas";
 
 $completionRate = $quantity_to_deliver > 0 ? round(($delivered / $quantity_to_deliver) * 100, 1) : 0;
@@ -26,6 +28,7 @@ $pendingSchedules = (int) ($scheduleStatusSummary['pending'] ?? 0);
 $executedSchedules = (int) ($scheduleStatusSummary['delivered'] ?? 0);
 $canceledSchedules = (int) ($scheduleStatusSummary['canceled'] ?? 0);
 $programCount = count($deliveriesByProgram);
+$studentsMissingCount = count($studentsMissingDeliveries);
 
 $statusConfig = [
     0 => ['label' => 'Pendiente', 'color' => '#dc3545', 'badge' => 'danger', 'icon' => 'far fa-clock'],
@@ -569,6 +572,18 @@ ob_start();
             </div>
         </div>
         <div class="col-md-6 col-xl-4 mb-3">
+            <div class="metric-card secondary">
+                <div class="metric-body">
+                    <div>
+                        <div class="metric-title">Estudiantes sin entregas</div>
+                        <span class="metric-number"><?= $studentsWithoutDeliveries ?></span>
+                        <div class="metric-caption">Activos sin registro en el mes actual</div>
+                    </div>
+                    <div class="metric-icon secondary"><i class="fas fa-user-times"></i></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-4 mb-3">
             <div class="metric-card info">
                 <div class="metric-body">
                     <div>
@@ -811,6 +826,57 @@ ob_start();
     </div>
 </div>
 
+    <div class="row">
+        <div class="col-xl-12">
+            <div class="panel-card">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title">Estudiantes con entregas pendientes</h3>
+                        <p class="panel-subtitle">Muestra los estudiantes que no han recibido entregas este mes y cuántas fechas faltan.</p>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="modal-summary mb-3">
+                        <span class="summary-chip">Sin entregas: <?= $studentsWithoutDeliveries ?></span>
+                        <span class="summary-chip">Con faltantes: <?= $studentsMissingCount ?></span>
+                    </div>
+<?php if (!empty($studentsMissingDeliveries)) { ?>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover reports-table" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Cédula</th>
+                                    <th>Nombres</th>
+                                    <th>Apellidos</th>
+                                    <th>Programa académico</th>
+                                    <th>Semestre</th>
+                                    <th>Entregas registradas</th>
+                                    <th>Faltantes</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+<?php foreach ($studentsMissingDeliveries as $student) { ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($student['document_number']) ?></td>
+                                    <td><?= htmlspecialchars($student['first_name']) ?></td>
+                                    <td><?= htmlspecialchars($student['last_name']) ?></td>
+                                    <td><?= htmlspecialchars($student['academic_program']) ?></td>
+                                    <td><?= htmlspecialchars($student['semester']) ?></td>
+                                    <td><?= htmlspecialchars($student['delivered_count']) ?></td>
+                                    <td><?= htmlspecialchars($student['missing_deliveries']) ?></td>
+                                </tr>
+<?php } ?>
+                            </tbody>
+                        </table>
+                    </div>
+<?php } else { ?>
+                    <div class="timeline-empty">No se encontraron estudiantes con entregas pendientes este mes.</div>
+<?php } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
 <div class="modal fade" id="detailsModal">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
@@ -1001,6 +1067,8 @@ ob_start();
                 ['Pendientes del mes', <?= json_encode($not_delivered) ?>],
                 ['Cumplimiento', <?= json_encode($completionRate . '%') ?>],
                 ['Promedio por mes', <?= json_encode($average_delivery) ?>],
+                ['Estudiantes sin entregas', <?= json_encode($studentsWithoutDeliveries) ?>],
+                ['Estudiantes con faltantes', <?= json_encode($studentsMissingCount) ?>],
                 ['Planificaciones totales', <?= json_encode($totalSchedules) ?>],
                 ['Planificaciones pendientes', <?= json_encode($pendingSchedules) ?>],
                 ['Planificaciones ejecutadas', <?= json_encode($executedSchedules) ?>],

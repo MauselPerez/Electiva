@@ -42,6 +42,72 @@ class Reports {
         return $this->fetchValue($query);
     }
 
+    public function getStudentsWithoutDeliveries() {
+        $query = $this->db->prepare(
+            "SELECT
+                        COUNT(*) AS no_deliveries
+                    FROM
+                        ws_students s
+                    WHERE
+                        s.is_active = 1
+                        AND NOT EXISTS (
+                            SELECT 1
+                            FROM ws_deliveries d
+                            INNER JOIN ws_delivery_scheduling ds
+                                ON ds.id = d.delivery_scheduling_id
+                            WHERE d.student_id = s.id
+                              AND MONTH(ds.delivery_day) = MONTH(CURDATE())
+                              AND YEAR(ds.delivery_day) = YEAR(CURDATE())
+                              AND ds.status != 2
+                        )"
+        );
+        return (int) ($this->fetchValue($query)['no_deliveries'] ?? 0);
+    }
+
+    public function getStudentsMissingDeliveries() {
+        $query = $this->db->prepare(
+            "SELECT
+                        p.document_number,
+                        p.first_name,
+                        p.last_name,
+                        ap.name AS academic_program,
+                        s.semester,
+                        COUNT(d.id) AS delivered_count,
+                        (SELECT COUNT(*) FROM ws_delivery_scheduling WHERE MONTH(delivery_day) = MONTH(CURDATE()) AND YEAR(delivery_day) = YEAR(CURDATE()) AND status != 2) - COUNT(d.id) AS missing_deliveries
+                    FROM
+                        ws_students s
+                    INNER JOIN ws_persons p
+                        ON p.id = s.person_id
+                    INNER JOIN ws_academic_programs ap
+                        ON ap.id = s.academic_program_id
+                    LEFT JOIN ws_deliveries d
+                        ON d.student_id = s.id
+                    LEFT JOIN ws_delivery_scheduling ds
+                        ON ds.id = d.delivery_scheduling_id
+                        AND MONTH(ds.delivery_day) = MONTH(CURDATE())
+                        AND YEAR(ds.delivery_day) = YEAR(CURDATE())
+                        AND ds.status != 2
+                    WHERE
+                        s.is_active = 1
+                    GROUP BY
+                        s.id,
+                        p.document_number,
+                        p.first_name,
+                        p.last_name,
+                        ap.name,
+                        s.semester
+                    HAVING
+                        missing_deliveries > 0
+                    ORDER BY
+                        missing_deliveries DESC,
+                        p.last_name ASC,
+                        p.first_name ASC"
+        );
+        $query->execute();
+        $query->setFetchMode(PDO::FETCH_ASSOC);
+        return $query->fetchAll();
+    }
+
     public function getDelivered()
     {
         $query = $this->db->prepare(
