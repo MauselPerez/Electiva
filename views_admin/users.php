@@ -29,8 +29,6 @@ $roles = $controller->getAllRoles();
 $title = "Usuarios";
 ob_start();
 ?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <style>
     #title {
         background-color: white;
@@ -260,10 +258,10 @@ ob_start();
             window.location.href = 'snacks.php';
         });
 
-        $message = "<?=$_SESSION['message'] ?? ''?>";
-        $message_type = "<?=$_SESSION['message_type'] ?? ''?>";
-        if ($message) {
-            toastr[$message_type]($message);
+        var message = "<?=$_SESSION['message'] ?? ''?>";
+        var messageType = "<?=$_SESSION['message_type'] ?? ''?>";
+        if (message && messageType && typeof toastr === 'object' && typeof toastr[messageType] === 'function') {
+            toastr[messageType](message);
             <?php unset($_SESSION['message']); ?>
             <?php unset($_SESSION['message_type']); ?>
         }
