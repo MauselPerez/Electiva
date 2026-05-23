@@ -3,7 +3,7 @@
 
     if (!isset($_SESSION['user'])) 
     {
-        header('Location: ../templates/login.php');
+        header('Location: /Electiva/templates/login.php');
         exit;
     }
 
