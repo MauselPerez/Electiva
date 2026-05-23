@@ -46,11 +46,13 @@ class UsersController {
                 $_SESSION['message_type'] = "danger";
             }
 
+            session_write_close();
             header("Location: users.php");
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al crear el usuario: " . $e->getMessage();
             $_SESSION['message_type'] = "danger";
+            session_write_close();
             header("Location: users.php");
             exit;
         }
@@ -81,11 +83,13 @@ class UsersController {
                 $_SESSION['message_type'] = "danger";
             }
 
+            session_write_close();
             header("Location: users.php");
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al actualizar el usuario: " . $e->getMessage();
             $_SESSION['message_type'] = "danger";
+            session_write_close();
             header("Location: users.php");
             exit;
         }
@@ -104,11 +108,13 @@ class UsersController {
                 $_SESSION['message_type'] = "danger";
             }
 
+            session_write_close();
             header("Location: users.php");
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al eliminar el usuario: " . $e->getMessage();
             $_SESSION['message_type'] = "danger";
+            session_write_close();
             header("Location: users.php");
             exit;
         }

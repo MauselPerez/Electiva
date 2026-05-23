@@ -260,10 +260,23 @@ ob_start();
 
         var message = "<?=$_SESSION['message'] ?? ''?>";
         var messageType = "<?=$_SESSION['message_type'] ?? ''?>";
-        if (message && messageType && typeof toastr === 'object' && typeof toastr[messageType] === 'function') {
-            toastr[messageType](message);
-            <?php unset($_SESSION['message']); ?>
-            <?php unset($_SESSION['message_type']); ?>
+        
+        console.log('Session Message:', message);
+        console.log('Message Type:', messageType);
+        console.log('Toastr loaded:', typeof toastr);
+        
+        if (message && messageType) {
+            console.log('Showing toast with type:', messageType);
+            if (typeof toastr === 'object' && typeof toastr[messageType] === 'function') {
+                toastr[messageType](message);
+                <?php unset($_SESSION['message']); ?>
+                <?php unset($_SESSION['message_type']); ?>
+            } else {
+                console.error('Toastr not properly loaded or invalid message type');
+                console.log('Available toastr methods:', Object.keys(toastr || {}));
+            }
+        } else {
+            console.log('No message or message type found in session');
         }
     });
 
