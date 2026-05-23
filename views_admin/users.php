@@ -250,6 +250,9 @@ ob_start();
         </div>
     </div>
 </div>
+<!-- TOASTR -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
 <script>
     $(document).ready(function() {
         $('#table').DataTable({});
