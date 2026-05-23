@@ -32,7 +32,7 @@ class AcademicProgramsController {
             else 
             {
                 $_SESSION['message'] = "Error al registrar el programa académico.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             header("Location: academic_programs.php");
@@ -58,7 +58,7 @@ class AcademicProgramsController {
         else 
         {
             $_SESSION['message'] = "Error al eliminar el programa académico.";
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
         }
 
         header("Location: academic_programs.php");

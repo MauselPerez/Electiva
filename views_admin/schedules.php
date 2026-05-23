@@ -792,10 +792,10 @@ ob_start();
             window.location.href = 'snacks.php';
         });
 
-        $message = "<?=$_SESSION['message'] ?? ''?>";
-        $message_type = "<?=$_SESSION['message_type'] ?? ''?>";
-        if ($message) {
-            toastr[$message_type]($message);
+        var message = "<?=$_SESSION['message'] ?? ''?>";
+        var messageType = "<?=$_SESSION['message_type'] ?? ''?>";
+        if (message && messageType && typeof toastr === 'object' && typeof toastr[messageType] === 'function') {
+            toastr[messageType](message);
             <?php unset($_SESSION['message']); ?>
             <?php unset($_SESSION['message_type']); ?>
         }

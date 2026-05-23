@@ -43,7 +43,7 @@ class UsersController {
                 $_SESSION['message_type'] = "success";
             } else {
                 $_SESSION['message'] = "Error al registrar el usuario.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             session_write_close();
@@ -51,7 +51,7 @@ class UsersController {
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al crear el usuario: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             session_write_close();
             header("Location: users.php");
             exit;
@@ -80,7 +80,7 @@ class UsersController {
                 $_SESSION['message_type'] = "success";
             } else {
                 $_SESSION['message'] = "Error al actualizar el usuario.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             session_write_close();
@@ -88,7 +88,7 @@ class UsersController {
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al actualizar el usuario: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             session_write_close();
             header("Location: users.php");
             exit;
@@ -105,7 +105,7 @@ class UsersController {
                 $_SESSION['message_type'] = "success";
             } else {
                 $_SESSION['message'] = "Error al eliminar el usuario.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             session_write_close();
@@ -113,7 +113,7 @@ class UsersController {
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al eliminar el usuario: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             session_write_close();
             header("Location: users.php");
             exit;

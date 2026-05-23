@@ -97,14 +97,14 @@ class StudentsController {
                 $_SESSION['message_type'] = "success";
             } else {
                 $_SESSION['message'] = "Error al registrar el estudiante.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             header("Location: students.php");
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al crear el estudiante: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             header("Location: students.php");
             exit;
         }
@@ -141,14 +141,14 @@ class StudentsController {
                 $_SESSION['message_type'] = "success";
             } else {
                 $_SESSION['message'] = "Error al actualizar el estudiante.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             header("Location: students.php");
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al actualizar el estudiante: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             header("Location: students.php");
             exit;
         }
@@ -172,14 +172,14 @@ class StudentsController {
                 $_SESSION['message_type'] = "success";
             } else {
                 $_SESSION['message'] = "Error al eliminar el estudiante.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             header("Location: students.php");
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al eliminar el estudiante: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             header("Location: students.php");
             exit;
         }

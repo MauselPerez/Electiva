@@ -38,7 +38,7 @@ class DeliveryController {
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al crear la entrega: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             header("Location: delivery.php");
             exit;
         }
@@ -59,14 +59,14 @@ class DeliveryController {
                 $_SESSION['message_type'] = "success";
             } else {
                 $_SESSION['message'] = "Error al eliminar la entrega.";
-                $_SESSION['message_type'] = "danger";
+                $_SESSION['message_type'] = "error";
             }
 
             header("Location: delivery.php");
             exit;
         } catch (Exception $e) {
             $_SESSION['message'] = "Error al eliminar la entrega: " . $e->getMessage();
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             header("Location: delivery.php");
             exit;
         }
@@ -158,13 +158,13 @@ class DeliveryController {
 
         if (!$schedule) {
             $_SESSION['message'] = "La jornada seleccionada no existe.";
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             return;
         }
 
         if ((int) $schedule['status'] === 2) {
             $_SESSION['message'] = "No se puede ejecutar una jornada anulada.";
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             return;
         }
 
@@ -184,7 +184,7 @@ class DeliveryController {
         $_SESSION['message'] = $result
             ? "Jornada marcada como ejecutada correctamente."
             : "No fue posible marcar la jornada como ejecutada.";
-        $_SESSION['message_type'] = $result ? "success" : "danger";
+        $_SESSION['message_type'] = $result ? "success" : "error";
     }
 
     public function reopenSchedule($id) {
@@ -192,7 +192,7 @@ class DeliveryController {
 
         if (!$schedule) {
             $_SESSION['message'] = "La jornada seleccionada no existe.";
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             return;
         }
 
@@ -206,7 +206,7 @@ class DeliveryController {
         $_SESSION['message'] = $result
             ? "Jornada reabierta correctamente."
             : "No fue posible reabrir la jornada.";
-        $_SESSION['message_type'] = $result ? "success" : "danger";
+        $_SESSION['message_type'] = $result ? "success" : "error";
     }
 }
 

@@ -97,7 +97,7 @@ class SchedulesController {
         } else 
         {
             $_SESSION['message'] = "Error al eliminar la programación.";
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             header("Location: schedules.php");
             exit;
         }
@@ -115,7 +115,7 @@ class SchedulesController {
         } else 
         {
             $_SESSION['message'] = "Error al cancelar la programación.";
-            $_SESSION['message_type'] = "danger";
+            $_SESSION['message_type'] = "error";
             header("Location: schedules.php");
             exit;
         }
