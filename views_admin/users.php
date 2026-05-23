@@ -268,6 +268,7 @@ ob_start();
         if (message && messageType) {
             console.log('Showing toast with type:', messageType);
             if (typeof toastr === 'object' && typeof toastr[messageType] === 'function') {
+                console.log('Toastr method exists:', messageType);
                 toastr[messageType](message);
                 <?php unset($_SESSION['message']); ?>
                 <?php unset($_SESSION['message_type']); ?>
