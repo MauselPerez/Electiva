@@ -395,6 +395,33 @@ ob_start();
         margin-top: 7px;
     }
 
+    .delivery-modal-columns {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .delivery-modal-table-shell {
+        border: 1px solid #e7edf3;
+        border-radius: 16px;
+        overflow: hidden;
+    }
+
+    .delivery-modal-table-shell .table-responsive {
+        margin-bottom: 0;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .delivery-modal-table-shell table {
+        min-width: 100%;
+    }
+
+    .delivery-modal-table-title {
+        color: #28313b;
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+
     .verify-student {
         display: grid;
         grid-template-columns: 92px 1fr;
@@ -448,6 +475,35 @@ ob_start();
 
         .hero-actions {
             justify-content: flex-start;
+        }
+
+        .delivery-modal-table-shell {
+            margin-bottom: 16px;
+        }
+    }
+
+    @media (max-width: 767.98px) {
+        #new_delivery .modal-dialog {
+            margin: 0.5rem;
+        }
+
+        #new_delivery .modal-body,
+        #new_delivery .modal-footer,
+        #new_delivery .modal-header {
+            padding-left: 14px;
+            padding-right: 14px;
+        }
+
+        .verify-student {
+            grid-template-columns: 1fr;
+            justify-items: center;
+            text-align: center;
+        }
+
+        .verify-student img,
+        .verify-placeholder {
+            width: 104px;
+            height: 104px;
         }
     }
 </style>
@@ -666,10 +722,12 @@ ob_start();
                         </div>
                         <div class="qr-help">El lector tipo pistola escribe el QR como teclado y termina con Enter. Se valida la jornada y se abre una ventana de confirmación.</div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-8 col-lg-8">
-                            <h5>Estudiantes activos</h5>
-                            <table id="table_students" class="display table table-bordered delivery-table">
+                    <div class="row delivery-modal-columns">
+                        <div class="col-12 col-xl-8 mb-3 mb-xl-0">
+                            <div class="delivery-modal-table-title">Estudiantes activos</div>
+                            <div class="delivery-modal-table-shell">
+                                <div class="table-responsive">
+                                    <table id="table_students" class="display table table-bordered delivery-table mb-0">
                                 <thead>
                                     <tr>
                                         <th>Cédula</th>
@@ -703,11 +761,15 @@ ob_start();
                                         <th></th>
                                     </tr>
                                 </tfoot>
-                            </table>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4 col-lg-4">
-                            <h5>Jornadas pendientes</h5>
-                            <table id="table_delivery_scheduling" class="display table table-bordered schedule-picker" style="width: 100%;">
+                        <div class="col-12 col-xl-4">
+                            <div class="delivery-modal-table-title">Jornadas pendientes</div>
+                            <div class="delivery-modal-table-shell">
+                                <div class="table-responsive">
+                                    <table id="table_delivery_scheduling" class="display table table-bordered schedule-picker mb-0" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th style="display: none;">ID</th>
@@ -734,7 +796,9 @@ ob_start();
                                         <th>Creado por</th>
                                     </tr>
                                 </tfoot>
-                            </table>
+                                    </table>
+                                </div>
+                            </div>
                             <input type="hidden" name="delivery_scheduling_id" id="delivery_scheduling_id">
                         </div>
                     </div>

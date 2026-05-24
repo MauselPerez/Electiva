@@ -29,108 +29,227 @@ $roles = $controller->getAllRoles();
 $title = "Usuarios";
 ob_start();
 ?>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 <style>
-    #title {
-        background-color: white;
-        border: 2px solid gray;
-        border-radius: 10px;
-        margin-top: 5px;
+    .module-page {
+        padding: 18px 8px 28px 0;
+    }
+
+    .module-hero {
+        background: linear-gradient(135deg, #28313b 0%, #485461 60%, #5f7a96 100%);
+        border-radius: 20px;
+        box-shadow: 0 18px 42px rgba(28, 38, 49, 0.18);
+        color: #fff;
+        margin: 10px 0 18px;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .module-hero::after {
+        background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.2), transparent 36%);
+        content: "";
+        inset: 0;
+        pointer-events: none;
+        position: absolute;
+    }
+
+    .module-hero-body {
+        padding: 24px 26px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .module-title {
+        font-size: 1.85rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .module-text {
+        color: rgba(255, 255, 255, 0.86);
+        margin-bottom: 0;
+        max-width: 760px;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 14px;
+    }
+
+    .hero-btn {
+        border-radius: 999px;
+        font-weight: 700;
+        padding: 10px 16px;
+    }
+
+    .panel-card {
+        background: #fff;
+        border: 1px solid #e7edf3;
+        border-radius: 20px;
+        box-shadow: 0 14px 34px rgba(17, 24, 39, 0.06);
+        margin-bottom: 18px;
+        overflow: hidden;
+    }
+
+    .panel-header {
+        align-items: center;
+        border-bottom: 1px solid #edf2f7;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: space-between;
+        padding: 18px 20px 14px;
+    }
+
+    .panel-title {
+        color: #28313b;
+        font-size: 1.08rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .panel-subtitle {
+        color: #6c7a89;
+        font-size: 0.9rem;
+        margin: 4px 0 0;
+    }
+
+    .panel-body {
+        padding: 18px 20px 20px;
+    }
+
+    .table-shell {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table-shell table {
+        min-width: 980px;
+    }
+
+    @media (max-width: 575.98px) {
+        .module-hero-body {
+            padding: 22px 18px;
+        }
+
+        .module-title {
+            font-size: 1.45rem;
+        }
+
+        .hero-actions {
+            justify-content: flex-start;
+        }
+
+        .table-shell table {
+            min-width: 860px;
+        }
     }
 </style>
-<div class="row">
-    <div class="col-md-12" id="title">
-        <h3 class="page-header" style="padding-top: 5px;">
-            Usuarios 
-            <button class="btn-sm btn-warning" style="float: right; margin-top:3px;" id="return">
-                <i class="fas fa-arrow-left"></i>  Regresar
-            </button>
-            <button type="button" class="btn-sm btn-success" data-toggle="modal" data-target="#new_user" style="float: right; margin-top:3px; margin-right: 5px;">
-                <i class="fas fa-save"></i>  Nuevo Usuario
-            </button>
-        </h3>
-        
+
+<div class="container-fluid module-page">
+    <div class="module-hero">
+        <div class="row align-items-center no-gutters module-hero-body">
+            <div class="col-lg-8">
+                <div class="module-title">Usuarios</div>
+                <p class="module-text">Gestiona los accesos del sistema con una interfaz uniforme, clara y adaptable a cualquier pantalla.</p>
+            </div>
+            <div class="col-lg-4">
+                <div class="hero-actions">
+                    <button type="button" class="btn btn-success hero-btn" data-toggle="modal" data-target="#new_user">
+                        <i class="fas fa-save mr-1"></i> Nuevo Usuario
+                    </button>
+                    <button class="btn btn-warning hero-btn" id="return">
+                        <i class="fas fa-arrow-left mr-1"></i> Regresar
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-md-12" id="title" style="padding-top: 20px;">
-        <table id="table" class="display table table-bordered" style="width:100%">
-            <thead class="thead-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Cedula</th>
-                    <th>Usuario</th>
-                    <th>Nombres</th>
-                    <th>Apellidos</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th style="width: 7%;"></th>
-                    <th style="width: 7%;"></th>
-                </tr>
-            </thead>
-            <tbody>
-<?php 
-            if (count($users) > 0)
-            {
-                foreach ($users as $user) 
-                { 
-?>
-                    <tr>
-                        <td><?= $user['id'] ?></td>
-                        <td><?= $user['document_number'] ?></td>
-                        <td><?= $user['username'] ?></td>
-                        <td><?= $user['first_name'] ?></td>
-                        <td><?= $user['last_name'] ?></td>
-                        <td><?= $user['email'] ?></td>
-                        <td><?= htmlspecialchars($user['rol']) ?></td>
-                        <td style="text-align:center;">
-                            <?php if ($user['is_active'] == 1) { ?>
-                                <span class="badge badge-success" style="padding: 8px;">Activo</span>
-                            <?php } else { ?>
-                                <span class="badge badge-danger"  style="padding: 8px;">Inactivo</span>
-                            <?php } ?>
-                        </td>
-                        <td>
-                            <button  type="button"  class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($user['id']) ?>" data-document-number="<?= htmlspecialchars($user['document_number']) ?>" data-username="<?= htmlspecialchars($user['username']) ?>" data-first-name="<?= htmlspecialchars($user['first_name']) ?>" data-last-name="<?= htmlspecialchars($user['last_name']) ?>" data-email="<?= htmlspecialchars($user['email']) ?>" data-role-id="<?= htmlspecialchars($user['role_id']) ?>" data-is-active="<?= htmlspecialchars($user['is_active']) ?>">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm" onclick="delete_user(<?=htmlspecialchars($user['id']); ?>)">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-<?php 
-                } 
-            }
-            else
-            {
-?>
-                <tr>
-                    <td colspan="8" style="text-align: center;"><span style="background-color:#cccc00; padding: 10px; color:#ffffff; font-size:large;"><b>No hay usuarios registrados.</b></span></td>
-                </tr>
-<?php
-            }
-?>
-            </tbody>
-            <tfoot class="thead-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Cedula</th>
-                    <th>Usuario</th>
-                    <th>Nombres</th>
-                    <th>Apellidos</th>
-                    <th>Email</th>
-                    <th>Rol</th>
-                    <th>Estado</th>
-                    <th></th>
-                    <th></th>
-                </tr>
-            </tfoot>
-        </table>
+
+    <div class="panel-card">
+        <div class="panel-header">
+            <div>
+                <h3 class="panel-title">Listado de usuarios</h3>
+                <p class="panel-subtitle">Consulta, edita o elimina usuarios registrados en el sistema.</p>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="table-shell">
+                <table id="table" class="display table table-bordered" style="width:100%">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cedula</th>
+                            <th>Usuario</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th style="width: 7%;"></th>
+                            <th style="width: 7%;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+<?php if (count($users) > 0) { ?>
+<?php foreach ($users as $user) { ?>
+                        <tr>
+                            <td><?= htmlspecialchars($user['id']); ?></td>
+                            <td><?= htmlspecialchars($user['document_number']); ?></td>
+                            <td><?= htmlspecialchars($user['username']); ?></td>
+                            <td><?= htmlspecialchars($user['first_name']); ?></td>
+                            <td><?= htmlspecialchars($user['last_name']); ?></td>
+                            <td><?= htmlspecialchars($user['email']); ?></td>
+                            <td><?= htmlspecialchars($user['rol']); ?></td>
+                            <td style="text-align:center;">
+                                <?php if ((int) $user['is_active'] === 1) { ?>
+                                    <span class="badge badge-success" style="padding: 8px;">Activo</span>
+                                <?php } else { ?>
+                                    <span class="badge badge-danger" style="padding: 8px;">Inactivo</span>
+                                <?php } ?>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($user['id']); ?>" data-document-number="<?= htmlspecialchars($user['document_number']); ?>" data-username="<?= htmlspecialchars($user['username']); ?>" data-first-name="<?= htmlspecialchars($user['first_name']); ?>" data-last-name="<?= htmlspecialchars($user['last_name']); ?>" data-email="<?= htmlspecialchars($user['email']); ?>" data-role-id="<?= htmlspecialchars($user['role_id']); ?>" data-is-active="<?= htmlspecialchars($user['is_active']); ?>">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="delete_user(<?= htmlspecialchars($user['id']); ?>)">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+<?php } ?>
+<?php } else { ?>
+                        <tr>
+                            <td colspan="10" style="text-align: center;"><span style="background-color:#cccc00; padding: 10px; color:#ffffff; font-size:large;"><b>No hay usuarios registrados.</b></span></td>
+                        </tr>
+<?php } ?>
+                    </tbody>
+                    <tfoot class="thead-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cedula</th>
+                            <th>Usuario</th>
+                            <th>Nombres</th>
+                            <th>Apellidos</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Modal de nuevo usuario -->
 <div class="modal fade" id="new_user" tabindex="-1" role="dialog" aria-labelledby="new_user" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -164,9 +283,7 @@ ob_start();
                         <select class="form-control" id="role_id" name="role_id" required>
                             <option value="">Seleccione un rol</option>
                             <?php foreach ($roles as $role) { ?>
-                                <option value="<?= htmlspecialchars($role['id']) ?>">
-                                    <?= htmlspecialchars($role['name']) ?>
-                                </option>
+                                <option value="<?= htmlspecialchars($role['id']) ?>"><?= htmlspecialchars($role['name']) ?></option>
                             <?php } ?>
                         </select>
                     </div>
@@ -184,7 +301,6 @@ ob_start();
     </div>
 </div>
 
-<!-- Modal de editar usuario -->
 <div class="modal fade" id="edit_user" tabindex="-1" role="dialog" aria-labelledby="edit_user" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -195,23 +311,23 @@ ob_start();
                 <div class="modal-body">
                     <input type="hidden" id="id" name="id">
                     <div class="form-group">
-                        <label for="document_number">Cedula</label>
+                        <label for="document_number_edit">Cedula</label>
                         <input type="text" class="form-control" id="document_number_edit" name="document_number" required>
                     </div>
                     <div class="form-group">
-                        <label for="username">Usuario</label>
+                        <label for="username_edit">Usuario</label>
                         <input type="text" class="form-control" id="username_edit" name="username" required>
                     </div>
                     <div class="form-group">
-                        <label for="first_name">Nombres</label>
+                        <label for="first_name_edit">Nombres</label>
                         <input type="text" class="form-control" id="first_name_edit" name="first_name" required>
                     </div>
                     <div class="form-group">
-                        <label for="last_name">Apellidos</label>
+                        <label for="last_name_edit">Apellidos</label>
                         <input type="text" class="form-control" id="last_name_edit" name="last_name" required>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email</label>
+                        <label for="email_edit">Email</label>
                         <input type="email" class="form-control" id="email_edit" name="email" required>
                     </div>
                     <div class="form-group">
@@ -219,13 +335,10 @@ ob_start();
                         <select class="form-control" id="role_id_edit" name="role_id" required>
                             <option value="">Seleccione un rol</option>
                             <?php foreach ($roles as $role) { ?>
-                                <option value="<?= htmlspecialchars($role['id']) ?>">
-                                    <?= htmlspecialchars($role['name']) ?>
-                                </option>
+                                <option value="<?= htmlspecialchars($role['id']) ?>"><?= htmlspecialchars($role['name']) ?></option>
                             <?php } ?>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label for="is_active_edit">Estado</label>
                         <select class="form-control" id="is_active_edit" name="is_active" required>
@@ -233,7 +346,6 @@ ob_start();
                             <option value="0">Inactivo</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label for="password_edit">Nueva contraseña</label>
                         <input type="password" class="form-control" id="password_edit" name="password">
@@ -248,36 +360,26 @@ ob_start();
         </div>
     </div>
 </div>
-<!-- TOASTR -->
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
 <script>
     $(document).ready(function() {
-        $('#table').DataTable({});
+        $('#table').DataTable({
+            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' }
+        });
+
         $('#return').click(function() {
             window.location.href = 'snacks.php';
         });
 
         var message = "<?=$_SESSION['message'] ?? ''?>";
         var messageType = "<?=$_SESSION['message_type'] ?? ''?>";
-        
-        console.log('Session Message:', message);
-        console.log('Message Type:', messageType);
-        console.log('Toastr loaded:', typeof toastr);
-        
-        if (message && messageType) {
-            console.log('Showing toast with type:', messageType);
-            if (typeof toastr === 'object' && typeof toastr[messageType] === 'function') {
-                console.log('Toastr method exists:', messageType);
-                toastr[messageType](message);
-                <?php unset($_SESSION['message']); ?>
-                <?php unset($_SESSION['message_type']); ?>
-            } else {
-                console.error('Toastr not properly loaded or invalid message type');
-                console.log('Available toastr methods:', Object.keys(toastr || {}));
-            }
-        } else {
-            console.log('No message or message type found in session');
+
+        if (message && messageType && typeof toastr === 'object' && typeof toastr[messageType] === 'function') {
+            toastr[messageType](message);
+            <?php unset($_SESSION['message']); ?>
+            <?php unset($_SESSION['message_type']); ?>
         }
     });
 
@@ -305,8 +407,7 @@ ob_start();
     }
 
     function delete_user(id) {
-        var confirm_delete = confirm('¿Está seguro de eliminar este usuario?');
-        if (confirm_delete) {
+        if (confirm('¿Está seguro de eliminar este usuario?')) {
             window.location.href = 'users.php?action=delete&id=' + id;
         }
     }
