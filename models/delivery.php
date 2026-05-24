@@ -163,6 +163,21 @@ class Delivery {
         return $query->fetch();
     }
 
+    public function hasPendingSchedulesBefore($scheduleId) {
+        $query = $this->db->prepare("
+            SELECT COUNT(*) AS total
+            FROM ws_delivery_scheduling current_ds
+            INNER JOIN ws_delivery_scheduling earlier_ds
+                ON earlier_ds.delivery_day < current_ds.delivery_day
+            WHERE current_ds.id = :schedule_id
+              AND earlier_ds.status = 0
+        ");
+        $query->bindParam(':schedule_id', $scheduleId, PDO::PARAM_INT);
+        $query->execute();
+        $row = $query->fetch(PDO::FETCH_ASSOC);
+        return (int) ($row['total'] ?? 0) > 0;
+    }
+
     // Crear una nueva entrega
     public function createDelivery($data) {
         if ($this->deliveryExists((int) $data['student_id'], (int) $data['delivery_scheduling_id'])) {

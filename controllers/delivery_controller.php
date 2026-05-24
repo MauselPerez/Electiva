@@ -180,6 +180,12 @@ class DeliveryController {
             return;
         }
 
+        if ($this->deliveryModel->hasPendingSchedulesBefore((int) $id)) {
+            $_SESSION['message'] = "No puedes marcar esta jornada como ejecutada mientras haya jornadas anteriores pendientes. Ejecuta primero los días anteriores.";
+            $_SESSION['message_type'] = "warning";
+            return;
+        }
+
         $result = $this->deliveryModel->updateDeliverySchedulingStatus((int) $id, 1);
         $_SESSION['message'] = $result
             ? "Jornada marcada como ejecutada correctamente."
