@@ -46,6 +46,25 @@ class Delivery {
         return $stmt->execute();
     }
 
+    private function deliveryExistsForDay($studentId, $scheduleId) {
+        $checkQuery = $this->db->prepare("
+            SELECT d.id
+            FROM ws_deliveries d
+            INNER JOIN ws_delivery_scheduling ds
+                ON ds.id = d.delivery_scheduling_id
+            INNER JOIN ws_delivery_scheduling selected_ds
+                ON selected_ds.id = :delivery_scheduling_id
+            WHERE d.student_id = :student_id
+              AND DATE(ds.delivery_day) = DATE(selected_ds.delivery_day)
+            LIMIT 1
+        ");
+        $checkQuery->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+        $checkQuery->bindParam(':delivery_scheduling_id', $scheduleId, PDO::PARAM_INT);
+        $checkQuery->execute();
+
+        return (bool) $checkQuery->fetch();
+    }
+
     public function findStudentByDocumentNumber($documentNumber) {
         $query = $this->db->prepare("
             SELECT
@@ -73,6 +92,10 @@ class Delivery {
 
     public function hasDeliveryForSchedule($studentId, $scheduleId) {
         return $this->deliveryExists((int) $studentId, (int) $scheduleId);
+    }
+
+    public function hasDeliveryForDay($studentId, $scheduleId) {
+        return $this->deliveryExistsForDay((int) $studentId, (int) $scheduleId);
     }
 
     // Obtener todas las entregas
@@ -180,26 +203,33 @@ class Delivery {
 
     // Crear una nueva entrega
     public function createDelivery($data) {
-        if ($this->deliveryExists((int) $data['student_id'], (int) $data['delivery_scheduling_id'])) {
+        $studentId = (int) $data['student_id'];
+        $scheduleId = (int) $data['delivery_scheduling_id'];
+
+        if ($this->deliveryExists($studentId, $scheduleId) || $this->deliveryExistsForDay($studentId, $scheduleId)) {
             return false;
         }
 
-        return $this->insertDelivery((int) $data['student_id'], (int) $data['delivery_scheduling_id'], (int) $data['user_id']);
+        return $this->insertDelivery($studentId, $scheduleId, (int) $data['user_id']);
     }
 
     public function createDeliveriesBatch($studentIds, $scheduleId, $userId) {
         $createdCount = 0;
+        $scheduleId = (int) $scheduleId;
+        $userId = (int) $userId;
 
         try {
             $this->db->beginTransaction();
 
             foreach ($studentIds as $studentId) {
                 $studentId = (int) $studentId;
-                $scheduleId = (int) $scheduleId;
-                $userId = (int) $userId;
 
                 if ($this->deliveryExists($studentId, $scheduleId)) {
                     throw new Exception('Ya existe al menos una entrega registrada para uno de los estudiantes seleccionados en esta jornada.');
+                }
+
+                if ($this->deliveryExistsForDay($studentId, $scheduleId)) {
+                    throw new Exception('Ya existe al menos una entrega registrada para uno de los estudiantes seleccionados en ese dia.');
                 }
 
                 if (!$this->insertDelivery($studentId, $scheduleId, $userId)) {
