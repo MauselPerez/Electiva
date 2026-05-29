@@ -106,7 +106,392 @@ VALUES
 ('CONTRACTOR', 'Perfil contratista');
 
 -- =====================================================
--- 3) Migrar programas academicos a unidades organizacionales
+-- 3) Crear arbol institucional base (real)
+-- =====================================================
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  NULL,
+  outt.id,
+  'Rectoria',
+  1
+FROM ws_organizational_unit_types outt
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Rectoria'
+WHERE outt.name = 'RECTORY'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Vicerrectoria Academica',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Vicerrectoria Academica'
+WHERE outt.name = 'VICERRECTORY'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Vicerrectoria Administrativa y Financiera',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Vicerrectoria Administrativa y Financiera'
+WHERE outt.name = 'VICERRECTORY'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Vicerrectoria de Investigacion y Extension',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Vicerrectoria de Investigacion y Extension'
+WHERE outt.name = 'VICERRECTORY'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Secretaria General',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Secretaria General'
+WHERE outt.name = 'DEPARTMENT'
+  AND ou.id IS NULL;
+
+-- Unidades de apoyo directo a Rectoria
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Planeacion',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Planeacion'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Comunicaciones',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Comunicaciones'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Oficina de Control Interno',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Oficina de Control Interno'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  rectoria.id,
+  outt.id,
+  'Consejo Academico',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units rectoria
+  ON rectoria.name = 'Rectoria'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Consejo Academico'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+-- Hijos de Secretaria General
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  sg.id,
+  outt.id,
+  'Oficina Asesora Juridica',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units sg
+  ON sg.name = 'Secretaria General'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Oficina Asesora Juridica'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  sg.id,
+  outt.id,
+  'Gestion Documental',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units sg
+  ON sg.name = 'Secretaria General'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Gestion Documental'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  sg.id,
+  outt.id,
+  'Atencion al Ciudadano',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units sg
+  ON sg.name = 'Secretaria General'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Atencion al Ciudadano'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+-- Hijos de Vicerrectoria de Investigacion y Extension
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vie.id,
+  outt.id,
+  'Investigacion',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vie
+  ON vie.name = 'Vicerrectoria de Investigacion y Extension'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Investigacion'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vie.id,
+  outt.id,
+  'Extension y Proyeccion Social',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vie
+  ON vie.name = 'Vicerrectoria de Investigacion y Extension'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Extension y Proyeccion Social'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vie.id,
+  outt.id,
+  'Internacionalizacion',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vie
+  ON vie.name = 'Vicerrectoria de Investigacion y Extension'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Internacionalizacion'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+-- Hijos de Vicerrectoria Academica
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  va.id,
+  outt.id,
+  'Facultad de Ingenieria',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units va
+  ON va.name = 'Vicerrectoria Academica'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Facultad de Ingenieria'
+WHERE outt.name = 'FACULTY'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  va.id,
+  outt.id,
+  'Facultad de CAEC',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units va
+  ON va.name = 'Vicerrectoria Academica'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Facultad de CAEC'
+WHERE outt.name = 'FACULTY'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  va.id,
+  outt.id,
+  'Facultad de Humanidades',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units va
+  ON va.name = 'Vicerrectoria Academica'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Facultad de Humanidades'
+WHERE outt.name = 'FACULTY'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  va.id,
+  outt.id,
+  'Admisiones y Registro',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units va
+  ON va.name = 'Vicerrectoria Academica'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Admisiones y Registro'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  va.id,
+  outt.id,
+  'Bienestar Institucional',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units va
+  ON va.name = 'Vicerrectoria Academica'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Bienestar Institucional'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  va.id,
+  outt.id,
+  'Biblioteca',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units va
+  ON va.name = 'Vicerrectoria Academica'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Biblioteca'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  va.id,
+  outt.id,
+  'Aseguramiento de los Sistemas',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units va
+  ON va.name = 'Vicerrectoria Academica'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Aseguramiento de los Sistemas'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+-- Hijos de Vicerrectoria Administrativa y Financiera
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vaf.id,
+  outt.id,
+  'Gestion Financiera',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vaf
+  ON vaf.name = 'Vicerrectoria Administrativa y Financiera'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Gestion Financiera'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vaf.id,
+  outt.id,
+  'Gestion de Bienes y Servicio',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vaf
+  ON vaf.name = 'Vicerrectoria Administrativa y Financiera'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Gestion de Bienes y Servicio'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vaf.id,
+  outt.id,
+  'Gestion Humana',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vaf
+  ON vaf.name = 'Vicerrectoria Administrativa y Financiera'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Gestion Humana'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vaf.id,
+  outt.id,
+  'Coordinador de Sede',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vaf
+  ON vaf.name = 'Vicerrectoria Administrativa y Financiera'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Coordinador de Sede'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+INSERT INTO ws_organizational_units (parent_id, organizational_unit_type_id, name, is_active)
+SELECT
+  vaf.id,
+  outt.id,
+  'Infraestructura Tecnologica',
+  1
+FROM ws_organizational_unit_types outt
+INNER JOIN ws_organizational_units vaf
+  ON vaf.name = 'Vicerrectoria Administrativa y Financiera'
+LEFT JOIN ws_organizational_units ou
+  ON ou.name = 'Infraestructura Tecnologica'
+WHERE outt.name = 'AREA'
+  AND ou.id IS NULL;
+
+-- =====================================================
+-- 4) Migrar programas academicos a unidades organizacionales
 -- =====================================================
 
 INSERT INTO ws_organizational_units (name, organizational_unit_type_id, is_active)
@@ -122,7 +507,58 @@ LEFT JOIN ws_organizational_units ou
 WHERE ou.id IS NULL;
 
 -- =====================================================
--- 4) Migrar estudiantes a perfiles de persona
+-- 5) Enlazar programas al arbol (parent_id)
+-- =====================================================
+
+UPDATE ws_organizational_units ou
+INNER JOIN ws_organizational_unit_types outt
+  ON outt.id = ou.organizational_unit_type_id
+INNER JOIN ws_organizational_units fi
+  ON fi.name = 'Facultad de Ingenieria'
+SET ou.parent_id = fi.id
+WHERE outt.name = 'PROGRAM'
+  AND ou.parent_id IS NULL
+  AND (
+    ou.name LIKE 'Ingenieria%'
+    OR ou.name LIKE '%Sistemas%'
+    OR ou.name LIKE '%Industrial%'
+    OR ou.name LIKE '%Electronica%'
+  );
+
+UPDATE ws_organizational_units ou
+INNER JOIN ws_organizational_unit_types outt
+  ON outt.id = ou.organizational_unit_type_id
+SET ou.parent_id = (
+  SELECT f.id
+  FROM ws_organizational_units f
+  WHERE f.name IN ('Facultad de CAEC', 'Facultad de Ciencias Economicas y Administrativas')
+  ORDER BY FIELD(f.name, 'Facultad de CAEC', 'Facultad de Ciencias Economicas y Administrativas')
+  LIMIT 1
+)
+WHERE outt.name = 'PROGRAM'
+  AND ou.parent_id IS NULL
+  AND (
+    ou.name LIKE 'Administracion%'
+    OR ou.name LIKE '%Contad%'
+    OR ou.name LIKE '%Econom%'
+    OR ou.name LIKE '%Finanz%'
+  );
+
+-- Fallback: si no hubo regla de mapeo, cuelga el programa de Vicerrectoria Academica.
+UPDATE ws_organizational_units ou
+INNER JOIN ws_organizational_unit_types outt
+  ON outt.id = ou.organizational_unit_type_id
+SET ou.parent_id = (
+  SELECT va.id
+  FROM ws_organizational_units va
+  WHERE va.name = 'Vicerrectoria Academica'
+  LIMIT 1
+)
+WHERE outt.name = 'PROGRAM'
+  AND ou.parent_id IS NULL;
+
+-- =====================================================
+-- 6) Migrar estudiantes a perfiles de persona
 -- =====================================================
 
 INSERT INTO ws_person_profiles (
@@ -157,7 +593,18 @@ LEFT JOIN ws_person_profiles pp
 WHERE pp.id IS NULL;
 
 -- =====================================================
--- 5) Migrar rol actual de users hacia tabla pivote ws_user_roles
+-- 7) Sembrar roles orientados a permisos
+-- =====================================================
+
+INSERT IGNORE INTO ws_roles (name, is_active)
+VALUES
+('MODULE_ADMIN', 1),
+('DELIVERY_OPERATOR', 1),
+('PLANNER', 1),
+('REPORT_VIEWER', 1);
+
+-- =====================================================
+-- 8) Migrar rol actual de users hacia tabla pivote ws_user_roles
 -- =====================================================
 
 INSERT IGNORE INTO ws_user_roles (user_id, role_id, is_active)
@@ -166,7 +613,7 @@ FROM users
 WHERE role_id IS NOT NULL;
 
 -- =====================================================
--- 6) Escalar planificacion por unidad organizacional
+-- 9) Escalar planificacion por unidad organizacional
 -- =====================================================
 
 ALTER TABLE ws_delivery_scheduling
@@ -187,7 +634,7 @@ ALTER TABLE ws_delivery_scheduling
   ADD UNIQUE KEY uk_ws_delivery_scheduling_org_day (organizational_unit_id, delivery_day);
 
 -- =====================================================
--- 7) Cambiar entregas de student_id a person_profile_id
+-- 10) Cambiar entregas de student_id a person_profile_id
 -- =====================================================
 
 ALTER TABLE ws_deliveries
@@ -212,14 +659,24 @@ ALTER TABLE ws_deliveries
   ADD UNIQUE KEY uk_ws_deliveries_profile_schedule (person_profile_id, delivery_scheduling_id);
 
 -- =====================================================
--- 8) Validaciones recomendadas antes de limpieza final
+-- 11) Validaciones recomendadas antes de limpieza final
 -- =====================================================
 -- SELECT COUNT(*) FROM ws_deliveries WHERE person_profile_id IS NULL;
 -- SELECT COUNT(*) FROM ws_user_roles;
 -- SELECT COUNT(*) FROM ws_person_profiles WHERE profile_type_id = (SELECT id FROM ws_profile_types WHERE name='STUDENT');
+-- SELECT outt.name AS unit_type, parent.name AS parent_name, child.name AS child_name
+-- FROM ws_organizational_units child
+-- LEFT JOIN ws_organizational_units parent ON parent.id = child.parent_id
+-- INNER JOIN ws_organizational_unit_types outt ON outt.id = child.organizational_unit_type_id
+-- ORDER BY outt.name, parent.name, child.name;
+--
+-- SELECT child.id, child.name, child.parent_id
+-- FROM ws_organizational_units child
+-- INNER JOIN ws_organizational_unit_types outt ON outt.id = child.organizational_unit_type_id
+-- WHERE outt.name = 'PROGRAM' AND child.parent_id IS NULL;
 
 -- =====================================================
--- 9) Limpieza final (ejecutar SOLO cuando el codigo ya este adaptado)
+-- 12) Limpieza final (ejecutar SOLO cuando el codigo ya este adaptado)
 -- =====================================================
 
 -- ALTER TABLE users DROP FOREIGN KEY fk_users_role;
