@@ -16,6 +16,11 @@ class UsersController {
     // Registrar un nuevo usuario
     public function create($data) {
         try {
+            $roleIds = $data['role_ids'] ?? ($data['role_id'] ?? []);
+            if (!is_array($roleIds)) {
+                $roleIds = [$roleIds];
+            }
+
             if (
                 empty($data['username']) ||
                 empty($data['password']) ||
@@ -23,7 +28,7 @@ class UsersController {
                 empty($data['first_name']) ||
                 empty($data['last_name']) ||
                 empty($data['email']) ||
-                empty($data['role_id'])
+                count(array_filter($roleIds)) === 0
             ) {
                 throw new Exception("Todos los campos son obligatorios.");
             }
@@ -35,7 +40,7 @@ class UsersController {
                 'first_name' => trim($data['first_name']),
                 'last_name' => trim($data['last_name']),
                 'email' => trim($data['email']),
-                'role_id' => trim($data['role_id'])
+                'role_ids' => $roleIds
             ]);
 
             if ($result) {
@@ -61,6 +66,11 @@ class UsersController {
     // Actualizar un usuario existente
     public function update($id, $data) {
         try {
+            $roleIds = $data['role_ids'] ?? ($data['role_id'] ?? []);
+            if (!is_array($roleIds)) {
+                $roleIds = [$roleIds];
+            }
+
             if (
                 empty($id) ||
                 empty($data['username']) ||
@@ -68,11 +78,12 @@ class UsersController {
                 empty($data['first_name']) ||
                 empty($data['last_name']) ||
                 empty($data['email']) ||
-                empty($data['role_id'])
+                count(array_filter($roleIds)) === 0
             ) {
                 throw new Exception("Todos los campos son obligatorios.");
             }
 
+            $data['role_ids'] = $roleIds;
             $result = $this->userModel->updateUser($id, $data);
 
             if ($result) {

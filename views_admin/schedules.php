@@ -765,6 +765,24 @@ ob_start();
 <script>
     $(document).ready(function() {
         var activeStatusFilter = 'all';
+        var dataTableEs = {
+            decimal: "",
+            emptyTable: "No hay registros disponibles",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron coincidencias",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        };
 
         $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
             if (settings.nTable.id !== 'table') {
@@ -783,9 +801,7 @@ ob_start();
             responsive: true,
             autoWidth: false,
             order: [[0, 'desc']],
-            "language": {
-                "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
-            }
+            language: dataTableEs
         });
 
         $('#return').click(function() {

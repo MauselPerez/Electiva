@@ -32,13 +32,14 @@ class Reports {
     // Obtener todos los estudiantes
     public function getStudents() {
         $query = $this->db->prepare(
-    "SELECT
+            "SELECT
                 COUNT(*) AS students
-            FROM
-                ws_students
-            WHERE
-                is_active = 1
-            ");
+            FROM ws_person_profiles pp
+            INNER JOIN ws_profile_types pt
+                ON pt.id = pp.profile_type_id
+            WHERE pt.name = 'STUDENT'
+              AND pp.is_active = 1"
+        );
         return $this->fetchValue($query);
     }
 
@@ -47,15 +48,18 @@ class Reports {
             "SELECT
                         COUNT(*) AS no_deliveries
                     FROM
-                        ws_students s
+                        ws_person_profiles pp
+                    INNER JOIN ws_profile_types pt
+                        ON pt.id = pp.profile_type_id
                     WHERE
-                        s.is_active = 1
+                        pp.is_active = 1
+                        AND pt.name = 'STUDENT'
                         AND NOT EXISTS (
                             SELECT 1
                             FROM ws_deliveries d
                             INNER JOIN ws_delivery_scheduling ds
                                 ON ds.id = d.delivery_scheduling_id
-                            WHERE d.student_id = s.id
+                            WHERE d.person_profile_id = pp.id
                               AND MONTH(ds.delivery_day) = MONTH(CURDATE())
                               AND YEAR(ds.delivery_day) = YEAR(CURDATE())
                               AND ds.status != 2
@@ -70,32 +74,35 @@ class Reports {
                         p.document_number,
                         p.first_name,
                         p.last_name,
-                        ap.name AS academic_program,
-                        s.semester,
+                        COALESCE(ou.name, 'Sin unidad') AS academic_program,
+                        pp.semester,
                         COUNT(d.id) AS delivered_count,
                         (SELECT COUNT(*) FROM ws_delivery_scheduling WHERE MONTH(delivery_day) = MONTH(CURDATE()) AND YEAR(delivery_day) = YEAR(CURDATE()) AND status != 2) - COUNT(d.id) AS missing_deliveries
                     FROM
-                        ws_students s
+                        ws_person_profiles pp
+                    INNER JOIN ws_profile_types pt
+                        ON pt.id = pp.profile_type_id
                     INNER JOIN ws_persons p
-                        ON p.id = s.person_id
-                    INNER JOIN ws_academic_programs ap
-                        ON ap.id = s.academic_program_id
+                        ON p.id = pp.person_id
+                    LEFT JOIN ws_organizational_units ou
+                        ON ou.id = pp.organizational_unit_id
                     LEFT JOIN ws_deliveries d
-                        ON d.student_id = s.id
+                        ON d.person_profile_id = pp.id
                     LEFT JOIN ws_delivery_scheduling ds
                         ON ds.id = d.delivery_scheduling_id
                         AND MONTH(ds.delivery_day) = MONTH(CURDATE())
                         AND YEAR(ds.delivery_day) = YEAR(CURDATE())
                         AND ds.status != 2
                     WHERE
-                        s.is_active = 1
+                        pp.is_active = 1
+                        AND pt.name = 'STUDENT'
                     GROUP BY
-                        s.id,
+                        pp.id,
                         p.document_number,
                         p.first_name,
                         p.last_name,
-                        ap.name,
-                        s.semester
+                        ou.name,
+                        pp.semester
                     HAVING
                         missing_deliveries > 0
                     ORDER BY
@@ -231,19 +238,17 @@ class Reports {
     public function getDeliveriesByProgram() {
         $query = $this->db->prepare(
             "SELECT
-                        ws_academic_programs.name AS academic_program,
+                        COALESCE(ou.name, 'Sin unidad') AS academic_program,
                         COUNT(ws_deliveries.id) AS delivered
                     FROM
                         ws_deliveries
-                    INNER JOIN
-                        ws_students
-                            ON ws_deliveries.student_id = ws_students.id
-                    INNER JOIN
-                        ws_academic_programs
-                            ON ws_students.academic_program_id = ws_academic_programs.id
+                    INNER JOIN ws_person_profiles pp
+                        ON ws_deliveries.person_profile_id = pp.id
+                    LEFT JOIN ws_organizational_units ou
+                        ON pp.organizational_unit_id = ou.id
                     GROUP BY
-                        ws_academic_programs.id,
-                        ws_academic_programs.name
+                        ou.id,
+                        ou.name
                     ORDER BY
                         delivered DESC"
         );
@@ -255,11 +260,11 @@ class Reports {
     public function getStudentsByDeliveryScheduling($id) {
         $query = $this->db->prepare(
             "SELECT 
-                        s.document_number,
-                        s.first_name,
-                        s.last_name,
-                        ap.name AS academic_program,
-                        s.semester,
+                        p.document_number,
+                        p.first_name,
+                        p.last_name,
+                        COALESCE(ou.name, 'Sin unidad') AS academic_program,
+                        pp.semester,
                         ds.delivery_day AS delivery_date
                     FROM
                         ws_deliveries d
@@ -267,11 +272,12 @@ class Reports {
                         ws_delivery_scheduling ds
                             ON d.delivery_scheduling_id = ds.id
                     INNER JOIN
-                        ws_students s
-                            ON d.student_id = s.id
-                    INNER JOIN
-                        ws_academic_programs ap
-                            ON s.academic_program_id = ap.id
+                        ws_person_profiles pp
+                            ON d.person_profile_id = pp.id
+                    INNER JOIN ws_persons p
+                        ON p.id = pp.person_id
+                    LEFT JOIN ws_organizational_units ou
+                        ON ou.id = pp.organizational_unit_id
                     WHERE
                         delivery_scheduling_id = :id
             ");

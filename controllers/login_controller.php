@@ -14,17 +14,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit();
     }
 
-    $userModel = new User($db);
+    $userModel = new User();
     $user = $userModel->findUserByUsername($username);
-    if ($user && $user['password'] == sha1($password)) {
+    if ($user && (int) ($user['is_active'] ?? 0) === 1 && $userModel->verifyPassword($user['password'], $password)) {
+        session_regenerate_id(true);
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
-        $_SESSION['role'] = $user['role_id'];
+        $_SESSION['user'] = $user['username'];
+        $_SESSION['role'] = $user['role_id'] ?? null;
+        $_SESSION['role_name'] = $user['rol'] ?? null;
+        $_SESSION['role_ids'] = $user['role_ids'] ?? null;
+        $_SESSION['role_names'] = $user['role_names'] ?? null;
         $_SESSION['document_number'] = $user['document_number'];
         $_SESSION['first_name'] = $user['first_name'];
         $_SESSION['last_name'] = $user['last_name'];
         $_SESSION['email'] = $user['email'];
         $_SESSION['name']  = $user['first_name'] . ' ' . $user['last_name'];
+
+        if ($userModel->needsPasswordRehash($user['password'])) {
+            $userModel->rehashPasswordForUser((int) $user['id'], $password);
+        }
 
         header("Location: ../views_admin/index.php");
         exit();

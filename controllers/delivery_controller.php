@@ -120,7 +120,8 @@ class DeliveryController {
             throw new Exception('El estudiante está inactivo y no puede recibir entrega.');
         }
 
-        $alreadyDelivered = $this->deliveryModel->hasDeliveryForSchedule((int) $student['id'], $scheduleId);
+        $alreadyDelivered = $this->deliveryModel->hasDeliveryForSchedule((int) $student['id'], $scheduleId)
+            || $this->deliveryModel->hasDeliveryForDay((int) $student['id'], $scheduleId);
 
         return [
             'student' => $student,
@@ -133,15 +134,15 @@ class DeliveryController {
         $data = $this->getStudentByQrForDelivery($qrCode, $scheduleId);
 
         if ($data['already_delivered']) {
-            throw new Exception('Este estudiante ya tiene entrega registrada en la jornada seleccionada.');
+            throw new Exception('Este estudiante ya tiene entrega registrada en la jornada seleccionada o en otra jornada del mismo dia.');
         }
 
-        $studentId = (int) $data['student']['id'];
+        $personProfileId = (int) $data['student']['id'];
         $scheduleId = (int) $scheduleId;
         $userId = (int) $_SESSION['user_id'];
 
         $created = $this->deliveryModel->createDelivery([
-            'student_id' => $studentId,
+            'person_profile_id' => $personProfileId,
             'delivery_scheduling_id' => $scheduleId,
             'user_id' => $userId,
         ]);

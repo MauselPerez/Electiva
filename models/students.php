@@ -9,63 +9,95 @@ class Student {
         $this->db = $db;
     }
 
+    private function getStudentProfileTypeId() {
+        $query = $this->db->prepare("SELECT id FROM ws_profile_types WHERE name = 'STUDENT' LIMIT 1");
+        $query->execute();
+        $row = $query->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            throw new Exception("No existe el tipo de perfil STUDENT.");
+        }
+
+        return (int) $row['id'];
+    }
+
     // Obtener todos los estudiantes
     public function getAllStudents() {
+        $studentProfileTypeId = $this->getStudentProfileTypeId();
+
         $query = $this->db->prepare("
-            SELECT 
-                s.id,
-                s.person_id,
-                s.academic_program_id,
-                s.semester,
-                s.is_active,
-                s.photo_path,
-                ap.name AS name,
+            SELECT
+                pp.id,
+                pp.person_id,
+                pp.organizational_unit_id AS academic_program_id,
+                pp.semester,
+                pp.is_active,
+                pp.photo_path,
+                COALESCE(ou.name, 'Sin unidad') AS name,
                 p.first_name,
                 p.last_name,
                 p.email,
                 p.document_number
-            FROM ws_students s
-            INNER JOIN ws_academic_programs ap
-                ON s.academic_program_id = ap.id
+            FROM ws_person_profiles pp
             INNER JOIN ws_persons p
-                ON p.id = s.person_id
-            ORDER BY s.id DESC
+                ON p.id = pp.person_id
+            LEFT JOIN ws_organizational_units ou
+                ON ou.id = pp.organizational_unit_id
+            WHERE pp.profile_type_id = :profile_type_id
+            ORDER BY pp.id DESC
         ");
+        $query->bindParam(':profile_type_id', $studentProfileTypeId, PDO::PARAM_INT);
         $query->execute();
         $query->setFetchMode(PDO::FETCH_ASSOC);
         return $query->fetchAll();
     }
 
     public function getStudentById($id) {
+        $studentProfileTypeId = $this->getStudentProfileTypeId();
+
         $query = $this->db->prepare("
             SELECT
-                s.id,
-                s.person_id,
-                s.academic_program_id,
-                s.semester,
-                s.is_active,
-                s.photo_path,
-                ap.name AS program_name,
+                pp.id,
+                pp.person_id,
+                pp.organizational_unit_id AS academic_program_id,
+                pp.semester,
+                pp.is_active,
+                pp.photo_path,
+                COALESCE(ou.name, 'Sin unidad') AS program_name,
                 p.first_name,
                 p.last_name,
                 p.email,
                 p.document_number
-            FROM ws_students s
-            INNER JOIN ws_academic_programs ap
-                ON s.academic_program_id = ap.id
+            FROM ws_person_profiles pp
             INNER JOIN ws_persons p
-                ON p.id = s.person_id
-            WHERE s.id = :id
+                ON p.id = pp.person_id
+            LEFT JOIN ws_organizational_units ou
+                ON ou.id = pp.organizational_unit_id
+            WHERE pp.id = :id
+              AND pp.profile_type_id = :profile_type_id
             LIMIT 1
         ");
         $query->bindParam(':id', $id, PDO::PARAM_INT);
+        $query->bindParam(':profile_type_id', $studentProfileTypeId, PDO::PARAM_INT);
         $query->execute();
         $query->setFetchMode(PDO::FETCH_ASSOC);
         return $query->fetch();
     }
 
     public function getAllPrograms() {
-        $query = $this->db->prepare("SELECT * FROM ws_academic_programs WHERE is_active = 1 ORDER BY name ASC");
+        $query = $this->db->prepare("
+            SELECT
+                ou.id,
+                ou.name,
+                ou.is_active,
+                ou.created_at
+            FROM ws_organizational_units ou
+            INNER JOIN ws_organizational_unit_types outt
+                ON outt.id = ou.organizational_unit_type_id
+            WHERE outt.name = 'PROGRAM'
+              AND ou.is_active = 1
+            ORDER BY ou.name ASC
+        ");
         $query->execute();
         $query->setFetchMode(PDO::FETCH_ASSOC);
         return $query->fetchAll();
@@ -76,10 +108,9 @@ class Student {
         try {
             $this->db->beginTransaction();
 
-            // Validar documento duplicado
-            $checkDocument = $this->db->prepare("
-                SELECT id FROM ws_persons WHERE document_number = :document_number
-            ");
+            $studentProfileTypeId = $this->getStudentProfileTypeId();
+
+            $checkDocument = $this->db->prepare("SELECT id FROM ws_persons WHERE document_number = :document_number");
             $checkDocument->bindParam(':document_number', $data['document_number']);
             $checkDocument->execute();
 
@@ -87,10 +118,7 @@ class Student {
                 throw new Exception("Ya existe una persona con esa cédula.");
             }
 
-            // Validar email duplicado
-            $checkEmail = $this->db->prepare("
-                SELECT id FROM ws_persons WHERE email = :email
-            ");
+            $checkEmail = $this->db->prepare("SELECT id FROM ws_persons WHERE email = :email");
             $checkEmail->bindParam(':email', $data['email']);
             $checkEmail->execute();
 
@@ -98,7 +126,6 @@ class Student {
                 throw new Exception("Ya existe una persona con ese correo.");
             }
 
-            // Insertar en ws_persons
             $personQuery = "
                 INSERT INTO ws_persons (
                     document_number,
@@ -122,38 +149,42 @@ class Student {
             $personStmt->bindParam(':email', $data['email']);
             $personStmt->execute();
 
-            $personId = $this->db->lastInsertId();
+            $personId = (int) $this->db->lastInsertId();
 
-            // Insertar en ws_students
-            $studentQuery = "
-                INSERT INTO ws_students (
+            $profileQuery = "
+                INSERT INTO ws_person_profiles (
                     person_id,
-                    academic_program_id,
+                    profile_type_id,
+                    organizational_unit_id,
                     semester,
                     photo_path,
                     is_active
                 ) VALUES (
                     :person_id,
-                    :program_id,
+                    :profile_type_id,
+                    :organizational_unit_id,
                     :semester,
                     :photo_path,
                     1
                 )
             ";
 
-            $studentStmt = $this->db->prepare($studentQuery);
-            $studentStmt->bindParam(':person_id', $personId);
-            $studentStmt->bindParam(':program_id', $data['program_id']);
-            $studentStmt->bindParam(':semester', $data['semester']);
+            $profileStmt = $this->db->prepare($profileQuery);
+            $profileStmt->bindParam(':person_id', $personId, PDO::PARAM_INT);
+            $profileStmt->bindParam(':profile_type_id', $studentProfileTypeId, PDO::PARAM_INT);
+            $profileStmt->bindParam(':organizational_unit_id', $data['program_id'], PDO::PARAM_INT);
+            $profileStmt->bindParam(':semester', $data['semester'], PDO::PARAM_INT);
             $photoPath = $data['photo_path'] ?? null;
-            $studentStmt->bindParam(':photo_path', $photoPath);
-            $studentStmt->execute();
+            $profileStmt->bindParam(':photo_path', $photoPath);
+            $profileStmt->execute();
 
             $this->db->commit();
             return true;
 
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             throw $e;
         }
     }
@@ -163,13 +194,16 @@ class Student {
         try {
             $this->db->beginTransaction();
 
-            // Obtener el person_id del estudiante
+            $studentProfileTypeId = $this->getStudentProfileTypeId();
+
             $studentQuery = $this->db->prepare("
                 SELECT person_id
-                FROM ws_students
+                FROM ws_person_profiles
                 WHERE id = :id
+                  AND profile_type_id = :profile_type_id
             ");
             $studentQuery->bindParam(':id', $id, PDO::PARAM_INT);
+            $studentQuery->bindParam(':profile_type_id', $studentProfileTypeId, PDO::PARAM_INT);
             $studentQuery->execute();
             $student = $studentQuery->fetch(PDO::FETCH_ASSOC);
 
@@ -177,9 +211,8 @@ class Student {
                 throw new Exception("El estudiante no existe.");
             }
 
-            $personId = $student['person_id'];
+            $personId = (int) $student['person_id'];
 
-            // Validar cédula duplicada en otra persona
             $checkDocument = $this->db->prepare("
                 SELECT id
                 FROM ws_persons
@@ -194,7 +227,6 @@ class Student {
                 throw new Exception("Ya existe otra persona con esa cédula.");
             }
 
-            // Validar email duplicado en otra persona
             $checkEmail = $this->db->prepare("
                 SELECT id
                 FROM ws_persons
@@ -209,7 +241,6 @@ class Student {
                 throw new Exception("Ya existe otra persona con ese correo.");
             }
 
-            // Actualizar persona
             $personUpdate = "
                 UPDATE ws_persons
                 SET
@@ -228,29 +259,32 @@ class Student {
             $personStmt->bindParam(':person_id', $personId, PDO::PARAM_INT);
             $personStmt->execute();
 
-            // Actualizar estudiante
             $studentUpdate = "
-                UPDATE ws_students
+                UPDATE ws_person_profiles
                 SET
-                    academic_program_id = :program_id,
+                    organizational_unit_id = :organizational_unit_id,
                     semester = :semester,
                     photo_path = :photo_path
                 WHERE id = :id
+                  AND profile_type_id = :profile_type_id
             ";
 
             $studentStmt = $this->db->prepare($studentUpdate);
-            $studentStmt->bindParam(':program_id', $data['program_id_edit']);
-            $studentStmt->bindParam(':semester', $data['semester_edit']);
+            $studentStmt->bindParam(':organizational_unit_id', $data['program_id_edit'], PDO::PARAM_INT);
+            $studentStmt->bindParam(':semester', $data['semester_edit'], PDO::PARAM_INT);
             $photoPath = $data['photo_path'] ?? null;
             $studentStmt->bindParam(':photo_path', $photoPath);
             $studentStmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $studentStmt->bindParam(':profile_type_id', $studentProfileTypeId, PDO::PARAM_INT);
             $studentStmt->execute();
 
             $this->db->commit();
             return true;
 
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             throw $e;
         }
     }
@@ -260,13 +294,16 @@ class Student {
         try {
             $this->db->beginTransaction();
 
-            // Obtener person_id
+            $studentProfileTypeId = $this->getStudentProfileTypeId();
+
             $studentQuery = $this->db->prepare("
                 SELECT person_id
-                FROM ws_students
+                FROM ws_person_profiles
                 WHERE id = :id
+                  AND profile_type_id = :profile_type_id
             ");
             $studentQuery->bindParam(':id', $id, PDO::PARAM_INT);
+            $studentQuery->bindParam(':profile_type_id', $studentProfileTypeId, PDO::PARAM_INT);
             $studentQuery->execute();
             $student = $studentQuery->fetch(PDO::FETCH_ASSOC);
 
@@ -274,29 +311,35 @@ class Student {
                 throw new Exception("El estudiante no existe.");
             }
 
-            $personId = $student['person_id'];
+            $personId = (int) $student['person_id'];
 
-            // Eliminar estudiante
-            $deleteStudent = $this->db->prepare("
-                DELETE FROM ws_students
-                WHERE id = :id
-            ");
-            $deleteStudent->bindParam(':id', $id, PDO::PARAM_INT);
-            $deleteStudent->execute();
+            $deleteProfile = $this->db->prepare("DELETE FROM ws_person_profiles WHERE id = :id");
+            $deleteProfile->bindParam(':id', $id, PDO::PARAM_INT);
+            $deleteProfile->execute();
 
-            // Eliminar persona
-            $deletePerson = $this->db->prepare("
-                DELETE FROM ws_persons
-                WHERE id = :person_id
-            ");
-            $deletePerson->bindParam(':person_id', $personId, PDO::PARAM_INT);
-            $deletePerson->execute();
+            $remainingProfiles = $this->db->prepare("SELECT COUNT(*) AS total FROM ws_person_profiles WHERE person_id = :person_id");
+            $remainingProfiles->bindParam(':person_id', $personId, PDO::PARAM_INT);
+            $remainingProfiles->execute();
+            $profileCount = (int) ($remainingProfiles->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
+
+            $existingUser = $this->db->prepare("SELECT COUNT(*) AS total FROM users WHERE person_id = :person_id");
+            $existingUser->bindParam(':person_id', $personId, PDO::PARAM_INT);
+            $existingUser->execute();
+            $userCount = (int) ($existingUser->fetch(PDO::FETCH_ASSOC)['total'] ?? 0);
+
+            if ($profileCount === 0 && $userCount === 0) {
+                $deletePerson = $this->db->prepare("DELETE FROM ws_persons WHERE id = :person_id");
+                $deletePerson->bindParam(':person_id', $personId, PDO::PARAM_INT);
+                $deletePerson->execute();
+            }
 
             $this->db->commit();
             return true;
 
         } catch (Exception $e) {
-            $this->db->rollBack();
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
             throw $e;
         }
     }

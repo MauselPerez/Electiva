@@ -188,7 +188,7 @@ ob_start();
                             <th>Nombres</th>
                             <th>Apellidos</th>
                             <th>Email</th>
-                            <th>Rol</th>
+                            <th>Roles</th>
                             <th>Estado</th>
                             <th style="width: 7%;"></th>
                             <th style="width: 7%;"></th>
@@ -204,7 +204,7 @@ ob_start();
                             <td><?= htmlspecialchars($user['first_name']); ?></td>
                             <td><?= htmlspecialchars($user['last_name']); ?></td>
                             <td><?= htmlspecialchars($user['email']); ?></td>
-                            <td><?= htmlspecialchars($user['rol']); ?></td>
+                            <td><?= htmlspecialchars($user['role_names'] ?: $user['rol']); ?></td>
                             <td style="text-align:center;">
                                 <?php if ((int) $user['is_active'] === 1) { ?>
                                     <span class="badge badge-success" style="padding: 8px;">Activo</span>
@@ -213,7 +213,7 @@ ob_start();
                                 <?php } ?>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($user['id']); ?>" data-document-number="<?= htmlspecialchars($user['document_number']); ?>" data-username="<?= htmlspecialchars($user['username']); ?>" data-first-name="<?= htmlspecialchars($user['first_name']); ?>" data-last-name="<?= htmlspecialchars($user['last_name']); ?>" data-email="<?= htmlspecialchars($user['email']); ?>" data-role-id="<?= htmlspecialchars($user['role_id']); ?>" data-is-active="<?= htmlspecialchars($user['is_active']); ?>">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)" data-id="<?= htmlspecialchars($user['id']); ?>" data-document-number="<?= htmlspecialchars($user['document_number']); ?>" data-username="<?= htmlspecialchars($user['username']); ?>" data-first-name="<?= htmlspecialchars($user['first_name']); ?>" data-last-name="<?= htmlspecialchars($user['last_name']); ?>" data-email="<?= htmlspecialchars($user['email']); ?>" data-role-ids="<?= htmlspecialchars($user['role_ids'] ?: $user['role_id']); ?>" data-is-active="<?= htmlspecialchars($user['is_active']); ?>">
                                     <i class="fa fa-edit"></i>
                                 </button>
                             </td>
@@ -224,10 +224,6 @@ ob_start();
                             </td>
                         </tr>
 <?php } ?>
-<?php } else { ?>
-                        <tr>
-                            <td colspan="10" style="text-align: center;"><span style="background-color:#cccc00; padding: 10px; color:#ffffff; font-size:large;"><b>No hay usuarios registrados.</b></span></td>
-                        </tr>
 <?php } ?>
                     </tbody>
                     <tfoot class="thead-dark">
@@ -238,7 +234,7 @@ ob_start();
                             <th>Nombres</th>
                             <th>Apellidos</th>
                             <th>Email</th>
-                            <th>Rol</th>
+                            <th>Roles</th>
                             <th>Estado</th>
                             <th></th>
                             <th></th>
@@ -279,13 +275,13 @@ ob_start();
                         <input type="email" class="form-control" id="email" name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="role_id">Rol</label>
-                        <select class="form-control" id="role_id" name="role_id" required>
-                            <option value="">Seleccione un rol</option>
+                        <label for="role_ids">Roles</label>
+                        <select class="form-control" id="role_ids" name="role_ids[]" multiple required>
                             <?php foreach ($roles as $role) { ?>
                                 <option value="<?= htmlspecialchars($role['id']) ?>"><?= htmlspecialchars($role['name']) ?></option>
                             <?php } ?>
                         </select>
+                        <small class="form-text text-muted">Use Ctrl (o Cmd) para seleccionar varios roles.</small>
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña</label>
@@ -331,13 +327,13 @@ ob_start();
                         <input type="email" class="form-control" id="email_edit" name="email" required>
                     </div>
                     <div class="form-group">
-                        <label for="role_id_edit">Rol</label>
-                        <select class="form-control" id="role_id_edit" name="role_id" required>
-                            <option value="">Seleccione un rol</option>
+                        <label for="role_ids_edit">Roles</label>
+                        <select class="form-control" id="role_ids_edit" name="role_ids[]" multiple required>
                             <?php foreach ($roles as $role) { ?>
                                 <option value="<?= htmlspecialchars($role['id']) ?>"><?= htmlspecialchars($role['name']) ?></option>
                             <?php } ?>
                         </select>
+                        <small class="form-text text-muted">Use Ctrl (o Cmd) para seleccionar varios roles.</small>
                     </div>
                     <div class="form-group">
                         <label for="is_active_edit">Estado</label>
@@ -365,8 +361,27 @@ ob_start();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.4/toastr.min.js"></script>
 <script>
     $(document).ready(function() {
+        var dataTableEs = {
+            decimal: "",
+            emptyTable: "No hay usuarios registrados",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron coincidencias",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        };
+
         $('#table').DataTable({
-            language: { url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json' }
+            language: dataTableEs
         });
 
         $('#return').click(function() {
@@ -390,7 +405,8 @@ ob_start();
         var first_name = $(element).data('first-name');
         var last_name = $(element).data('last-name');
         var email = $(element).data('email');
-        var role_id = $(element).data('role-id');
+        var roleIdsRaw = String($(element).data('role-ids') || '');
+        var roleIds = roleIdsRaw.split(',').map(function(value) { return value.trim(); }).filter(function(value) { return value !== ''; });
         var is_active = $(element).data('is-active');
 
         $('#id').val(id);
@@ -399,7 +415,10 @@ ob_start();
         $('#first_name_edit').val(first_name);
         $('#last_name_edit').val(last_name);
         $('#email_edit').val(email);
-        $('#role_id_edit').val(role_id);
+        $('#role_ids_edit option').prop('selected', false);
+        roleIds.forEach(function(roleId) {
+            $('#role_ids_edit option[value="' + roleId + '"]').prop('selected', true);
+        });
         $('#is_active_edit').val(is_active);
         $('#password_edit').val('');
 
