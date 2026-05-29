@@ -137,12 +137,12 @@ class DeliveryController {
             throw new Exception('Este estudiante ya tiene entrega registrada en la jornada seleccionada o en otra jornada del mismo dia.');
         }
 
-        $studentId = (int) $data['student']['id'];
+        $personProfileId = (int) $data['student']['id'];
         $scheduleId = (int) $scheduleId;
         $userId = (int) $_SESSION['user_id'];
 
         $created = $this->deliveryModel->createDelivery([
-            'student_id' => $studentId,
+            'person_profile_id' => $personProfileId,
             'delivery_scheduling_id' => $scheduleId,
             'user_id' => $userId,
         ]);

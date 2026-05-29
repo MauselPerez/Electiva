@@ -9,29 +9,29 @@ class Delivery {
         $this->db = $db;
     }
 
-    private function deliveryExists($studentId, $scheduleId) {
+    private function deliveryExists($personProfileId, $scheduleId) {
         $checkQuery = $this->db->prepare("
             SELECT id
             FROM ws_deliveries
-            WHERE student_id = :student_id
+            WHERE person_profile_id = :person_profile_id
               AND delivery_scheduling_id = :delivery_scheduling_id
         ");
-        $checkQuery->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+        $checkQuery->bindParam(':person_profile_id', $personProfileId, PDO::PARAM_INT);
         $checkQuery->bindParam(':delivery_scheduling_id', $scheduleId, PDO::PARAM_INT);
         $checkQuery->execute();
 
         return (bool) $checkQuery->fetch();
     }
 
-    private function insertDelivery($studentId, $scheduleId, $userId) {
+    private function insertDelivery($personProfileId, $scheduleId, $userId) {
         $query = "
             INSERT INTO ws_deliveries (
-                student_id,
+                person_profile_id,
                 delivery_scheduling_id,
                 created_at,
                 created_by
             ) VALUES (
-                :student_id,
+                :person_profile_id,
                 :delivery_scheduling_id,
                 NOW(),
                 :created_by
@@ -39,14 +39,14 @@ class Delivery {
         ";
 
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+        $stmt->bindParam(':person_profile_id', $personProfileId, PDO::PARAM_INT);
         $stmt->bindParam(':delivery_scheduling_id', $scheduleId, PDO::PARAM_INT);
         $stmt->bindParam(':created_by', $userId, PDO::PARAM_INT);
 
         return $stmt->execute();
     }
 
-    private function deliveryExistsForDay($studentId, $scheduleId) {
+    private function deliveryExistsForDay($personProfileId, $scheduleId) {
         $checkQuery = $this->db->prepare("
             SELECT d.id
             FROM ws_deliveries d
@@ -54,11 +54,11 @@ class Delivery {
                 ON ds.id = d.delivery_scheduling_id
             INNER JOIN ws_delivery_scheduling selected_ds
                 ON selected_ds.id = :delivery_scheduling_id
-            WHERE d.student_id = :student_id
+            WHERE d.person_profile_id = :person_profile_id
               AND DATE(ds.delivery_day) = DATE(selected_ds.delivery_day)
             LIMIT 1
         ");
-        $checkQuery->bindParam(':student_id', $studentId, PDO::PARAM_INT);
+        $checkQuery->bindParam(':person_profile_id', $personProfileId, PDO::PARAM_INT);
         $checkQuery->bindParam(':delivery_scheduling_id', $scheduleId, PDO::PARAM_INT);
         $checkQuery->execute();
 
@@ -68,20 +68,23 @@ class Delivery {
     public function findStudentByDocumentNumber($documentNumber) {
         $query = $this->db->prepare("
             SELECT
-                s.id,
-                s.semester,
-                s.is_active,
-                s.photo_path,
+                pp.id,
+                pp.semester,
+                pp.is_active,
+                pp.photo_path,
                 p.document_number,
                 p.first_name,
                 p.last_name,
-                ap.name AS academic_program
-            FROM ws_students s
+                COALESCE(ou.name, 'Sin unidad') AS academic_program
+            FROM ws_person_profiles pp
+            INNER JOIN ws_profile_types pt
+                ON pt.id = pp.profile_type_id
             INNER JOIN ws_persons p
-                ON p.id = s.person_id
-            INNER JOIN ws_academic_programs ap
-                ON ap.id = s.academic_program_id
+                ON p.id = pp.person_id
+            LEFT JOIN ws_organizational_units ou
+                ON ou.id = pp.organizational_unit_id
             WHERE p.document_number = :document_number
+              AND pt.name = 'STUDENT'
             LIMIT 1
         ");
         $query->bindParam(':document_number', $documentNumber, PDO::PARAM_STR);
@@ -90,12 +93,12 @@ class Delivery {
         return $query->fetch();
     }
 
-    public function hasDeliveryForSchedule($studentId, $scheduleId) {
-        return $this->deliveryExists((int) $studentId, (int) $scheduleId);
+    public function hasDeliveryForSchedule($personProfileId, $scheduleId) {
+        return $this->deliveryExists((int) $personProfileId, (int) $scheduleId);
     }
 
-    public function hasDeliveryForDay($studentId, $scheduleId) {
-        return $this->deliveryExistsForDay((int) $studentId, (int) $scheduleId);
+    public function hasDeliveryForDay($personProfileId, $scheduleId) {
+        return $this->deliveryExistsForDay((int) $personProfileId, (int) $scheduleId);
     }
 
     // Obtener todas las entregas
@@ -103,7 +106,7 @@ class Delivery {
         $query = $this->db->prepare("
             SELECT
                 d.id,
-                d.student_id,
+                d.person_profile_id,
                 d.delivery_scheduling_id,
                 d.created_at,
                 d.created_by,
@@ -111,18 +114,18 @@ class Delivery {
                 CONCAT(p.document_number, ' - ', p.first_name, ' ', p.last_name) AS student,
                 u.username AS created_by_username,
                 'Entregado' AS delivery_status,
-                ap.name AS academic_program
+                COALESCE(ou.name, 'Sin unidad') AS academic_program
             FROM ws_deliveries d
             INNER JOIN ws_delivery_scheduling ds
                 ON ds.id = d.delivery_scheduling_id
-            INNER JOIN ws_students s
-                ON s.id = d.student_id
+            INNER JOIN ws_person_profiles pp
+                ON pp.id = d.person_profile_id
             INNER JOIN ws_persons p
-                ON p.id = s.person_id
+                ON p.id = pp.person_id
             INNER JOIN users u
                 ON u.id = d.created_by
-            INNER JOIN ws_academic_programs ap
-                ON ap.id = s.academic_program_id
+            LEFT JOIN ws_organizational_units ou
+                ON ou.id = pp.organizational_unit_id
             ORDER BY d.id DESC
         ");
         $query->execute();
@@ -203,17 +206,21 @@ class Delivery {
 
     // Crear una nueva entrega
     public function createDelivery($data) {
-        $studentId = (int) $data['student_id'];
+        $personProfileId = (int) ($data['person_profile_id'] ?? $data['student_id'] ?? 0);
         $scheduleId = (int) $data['delivery_scheduling_id'];
 
-        if ($this->deliveryExists($studentId, $scheduleId) || $this->deliveryExistsForDay($studentId, $scheduleId)) {
+        if ($personProfileId <= 0) {
             return false;
         }
 
-        return $this->insertDelivery($studentId, $scheduleId, (int) $data['user_id']);
+        if ($this->deliveryExists($personProfileId, $scheduleId) || $this->deliveryExistsForDay($personProfileId, $scheduleId)) {
+            return false;
+        }
+
+        return $this->insertDelivery($personProfileId, $scheduleId, (int) $data['user_id']);
     }
 
-    public function createDeliveriesBatch($studentIds, $scheduleId, $userId) {
+    public function createDeliveriesBatch($personProfileIds, $scheduleId, $userId) {
         $createdCount = 0;
         $scheduleId = (int) $scheduleId;
         $userId = (int) $userId;
@@ -221,18 +228,18 @@ class Delivery {
         try {
             $this->db->beginTransaction();
 
-            foreach ($studentIds as $studentId) {
-                $studentId = (int) $studentId;
+            foreach ($personProfileIds as $personProfileId) {
+                $personProfileId = (int) $personProfileId;
 
-                if ($this->deliveryExists($studentId, $scheduleId)) {
+                if ($this->deliveryExists($personProfileId, $scheduleId)) {
                     throw new Exception('Ya existe al menos una entrega registrada para uno de los estudiantes seleccionados en esta jornada.');
                 }
 
-                if ($this->deliveryExistsForDay($studentId, $scheduleId)) {
+                if ($this->deliveryExistsForDay($personProfileId, $scheduleId)) {
                     throw new Exception('Ya existe al menos una entrega registrada para uno de los estudiantes seleccionados en ese dia.');
                 }
 
-                if (!$this->insertDelivery($studentId, $scheduleId, $userId)) {
+                if (!$this->insertDelivery($personProfileId, $scheduleId, $userId)) {
                     throw new Exception('No fue posible registrar una de las entregas seleccionadas.');
                 }
 
@@ -255,13 +262,15 @@ class Delivery {
         $query = "
             UPDATE ws_deliveries
             SET
-                student_id = :student_id,
+                person_profile_id = :person_profile_id,
                 delivery_scheduling_id = :delivery_scheduling_id
             WHERE id = :id
         ";
 
+        $personProfileId = (int) ($data['person_profile_id'] ?? $data['student_id'] ?? 0);
+
         $stmt = $this->db->prepare($query);
-        $stmt->bindParam(':student_id', $data['student_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':person_profile_id', $personProfileId, PDO::PARAM_INT);
         $stmt->bindParam(':delivery_scheduling_id', $data['delivery_scheduling_id'], PDO::PARAM_INT);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
