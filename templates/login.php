@@ -1,9 +1,9 @@
 <?php
     session_start();
-    if(isset($_SESSION['user'])){
+    if(isset($_SESSION['user_id'])){
         header('Location: ../views_admin/index.php');
     }else{
-        session_destroy();
+        unset($_SESSION['user']);
     }
 ?>
 

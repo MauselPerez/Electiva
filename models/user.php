@@ -158,6 +158,10 @@ class User {
         return $stmt->execute();
     }
 
+    private function hashPassword($password) {
+        return password_hash($password, PASSWORD_DEFAULT);
+    }
+
     // Crear nuevo usuario
     public function createUser($data) {
         try {
@@ -211,7 +215,7 @@ class User {
             $personStmt->execute();
 
             $personId = (int) $this->db->lastInsertId();
-            $passwordHash = sha1($data['password']);
+            $passwordHash = $this->hashPassword($data['password']);
 
             $userQuery = "
                 INSERT INTO users (
@@ -335,7 +339,7 @@ class User {
             }
 
             if (!empty($data['password'])) {
-                $passwordHash = sha1($data['password']);
+                $passwordHash = $this->hashPassword($data['password']);
                 $passwordUpdate = "UPDATE users SET password = :password WHERE id = :id";
                 $passwordStmt = $this->db->prepare($passwordUpdate);
                 $passwordStmt->bindParam(':password', $passwordHash);
@@ -398,6 +402,26 @@ class User {
             }
             throw $e;
         }
+    }
+
+    public function verifyPassword($storedPassword, $plainPassword) {
+        if (password_verify($plainPassword, $storedPassword)) {
+            return true;
+        }
+
+        return hash_equals(sha1($plainPassword), (string) $storedPassword);
+    }
+
+    public function needsPasswordRehash($storedPassword) {
+        return password_get_info($storedPassword)['algo'] === 0;
+    }
+
+    public function rehashPasswordForUser($userId, $plainPassword) {
+        $newHash = $this->hashPassword($plainPassword);
+        $stmt = $this->db->prepare("UPDATE users SET password = :password WHERE id = :id");
+        $stmt->bindParam(':password', $newHash);
+        $stmt->bindParam(':id', $userId, PDO::PARAM_INT);
+        return $stmt->execute();
     }
 }
 ?>
