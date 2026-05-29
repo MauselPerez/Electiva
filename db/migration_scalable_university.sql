@@ -84,6 +84,23 @@ CREATE TABLE IF NOT EXISTS ws_user_roles (
     FOREIGN KEY (assigned_by) REFERENCES users (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE IF NOT EXISTS ws_user_organizational_units (
+  user_id BIGINT NOT NULL,
+  organizational_unit_id BIGINT NOT NULL,
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  assigned_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  assigned_by BIGINT DEFAULT NULL,
+  PRIMARY KEY (user_id, organizational_unit_id),
+  KEY idx_ws_user_org_units_org_unit_id (organizational_unit_id),
+  KEY idx_ws_user_org_units_assigned_by (assigned_by),
+  CONSTRAINT fk_ws_user_org_units_user
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+  CONSTRAINT fk_ws_user_org_units_org_unit
+    FOREIGN KEY (organizational_unit_id) REFERENCES ws_organizational_units (id),
+  CONSTRAINT fk_ws_user_org_units_assigned_by
+    FOREIGN KEY (assigned_by) REFERENCES users (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- =====================================================
 -- 2) Catalogos iniciales
 -- =====================================================
@@ -598,10 +615,13 @@ WHERE pp.id IS NULL;
 
 INSERT IGNORE INTO ws_roles (name, is_active)
 VALUES
+('ADMIN', 1),
 ('MODULE_ADMIN', 1),
 ('DELIVERY_OPERATOR', 1),
 ('PLANNER', 1),
-('REPORT_VIEWER', 1);
+('BENEFICIARY_MANAGER', 1),
+('REPORT_VIEWER', 1),
+('AUDITOR', 1);
 
 -- =====================================================
 -- 8) Migrar rol actual de users hacia tabla pivote ws_user_roles

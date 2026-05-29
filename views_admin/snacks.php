@@ -14,15 +14,15 @@ ob_start();
     }
 </style>
 <div class="row">
-    <?=card('organizational_units.php', 'organization_chart2.png', 'Organigrama')?>
-    <?=card('roles.php', 'coordinate.png', 'Roles y permisos')?>
-    <?=card('profile_types.php', 'team.png', 'Tipos de perfil')?>
-    <?=card('students.php', 'audience.png', 'Estudiantes')?>
-    <?=card('schedules.php', 'schedule.png', 'Planificacion')?>
-    <?=card('delivery.php', 'package_delivery.png', 'Entregas/Reparto')?>
-    <?=card('reports.php', 'report.png', 'Reportes')?>
-    <?=card('academic_programs.php', 'academic_program.png', 'Programas academicos')?>
-    <?=card('users.php', 'users.png', 'Usuarios')?>
+    <?php if (canAccessModule('organizational_units')) { echo card('organizational_units.php', 'organization_chart2.png', 'Organigrama'); } ?>
+    <?php if (canAccessModule('roles')) { echo card('roles.php', 'coordinate.png', 'Roles y permisos'); } ?>
+    <?php if (canAccessModule('profile_types')) { echo card('profile_types.php', 'team.png', 'Tipos de perfil'); } ?>
+    <?php if (canAccessModule('students')) { echo card('students.php', 'audience.png', 'Estudiantes'); } ?>
+    <?php if (canAccessModule('schedules')) { echo card('schedules.php', 'schedule.png', 'Planificacion'); } ?>
+    <?php if (canAccessModule('delivery')) { echo card('delivery.php', 'package_delivery.png', 'Entregas/Reparto'); } ?>
+    <?php if (canAccessModule('reports')) { echo card('reports.php', 'report.png', 'Reportes'); } ?>
+    <?php if (canAccessModule('academic_programs')) { echo card('academic_programs.php', 'academic_program.png', 'Programas academicos'); } ?>
+    <?php if (canAccessModule('users')) { echo card('users.php', 'users.png', 'Usuarios'); } ?>
 </div>
 
 <script>

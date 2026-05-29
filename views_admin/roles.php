@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['ac
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['action']) && $_GET['action'] === 'update') {
     $controller->update($_POST['id'], $_POST);
 }
-
+    
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
     $controller->delete($_GET['id']);
 }
@@ -151,7 +151,7 @@ ob_start();
         <div class="row align-items-center no-gutters module-hero-body">
             <div class="col-lg-8">
                 <div class="module-title">Roles y permisos</div>
-                <p class="module-text">Administra los roles funcionales del sistema para controlar permisos y acceso por módulo.</p>
+                <p class="module-text">Los roles representan permisos dentro del sistema, no cargos laborales. Un usuario puede tener varios roles a la vez.</p>
             </div>
             <div class="col-lg-4">
                 <div class="hero-actions">
@@ -170,10 +170,14 @@ ob_start();
         <div class="panel-header">
             <div>
                 <h3 class="panel-title">Listado de roles</h3>
-                <p class="panel-subtitle">Gestiona el estado y nombre de cada rol de seguridad.</p>
+                <p class="panel-subtitle">Gestiona el estado y nombre de cada permiso funcional del sistema.</p>
             </div>
         </div>
         <div class="panel-body">
+            <div class="alert alert-info" style="border-radius: 14px; margin-bottom: 16px;">
+                <strong>Roles recomendados inicialmente:</strong> ADMIN, PLANNER, DELIVERY_OPERATOR, BENEFICIARY_MANAGER, REPORT_VIEWER y AUDITOR.
+                Un mismo usuario puede recibir varios roles usando la relación `ws_user_roles`.
+            </div>
             <div class="table-shell">
                 <table id="table" class="display table table-bordered" style="width:100%">
                 <thead class="thead-dark">

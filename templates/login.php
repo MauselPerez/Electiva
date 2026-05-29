@@ -14,7 +14,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Iniciar Sesión</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" href="../imgs/login.png">
+    <link rel="shortcut icon" href="../imgs/Logo_title.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../templates/AdminLTE-3.0.5/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css">
@@ -218,7 +218,7 @@
                 <div class="login-form-card">
                     <form action="../controllers/login_controller.php" method="POST" autocomplete="off">
                         <div class="text-center">
-                            <img src="../imgs/logo_well_snack.png" class="brand-logo" alt="logo">
+                            <img src="../imgs/Logo2.png" class="brand-logo" alt="logo">
                         </div>
                         <p class="lead-text"><b>Ingrese sus credenciales de acceso</b></p>
                         <div class="form-outline mb-4">

@@ -35,6 +35,7 @@ class User {
                 p.email,
                 r.id AS role_id,
                 r.name AS rol,
+                GROUP_CONCAT(DISTINCT r_all.id ORDER BY r_all.id SEPARATOR ',') AS role_ids,
                 GROUP_CONCAT(DISTINCT r_all.name ORDER BY r_all.name SEPARATOR ', ') AS role_names
             FROM users u
             INNER JOIN ws_persons p
@@ -113,7 +114,9 @@ class User {
                 p.last_name,
                 p.email,
                 r.id AS role_id,
-                COALESCE(r.name, 'SIN ROL') AS rol
+                COALESCE(r.name, 'SIN ROL') AS rol,
+                GROUP_CONCAT(DISTINCT r_all.id ORDER BY r_all.id SEPARATOR ',') AS role_ids,
+                GROUP_CONCAT(DISTINCT r_all.name ORDER BY r_all.name SEPARATOR ', ') AS role_names
             FROM users u
             INNER JOIN ws_persons p
                 ON p.id = u.person_id
@@ -121,6 +124,22 @@ class User {
                 ON ur.user_id = u.id
             LEFT JOIN ws_roles r
                 ON r.id = ur.role_id
+            LEFT JOIN ws_user_roles wur_all
+                ON wur_all.user_id = u.id
+               AND wur_all.is_active = 1
+            LEFT JOIN ws_roles r_all
+                ON r_all.id = wur_all.role_id
+            GROUP BY
+                u.id,
+                u.person_id,
+                u.username,
+                u.is_active,
+                p.document_number,
+                p.first_name,
+                p.last_name,
+                p.email,
+                r.id,
+                r.name
             ORDER BY u.id DESC
         ";
         $stmt = $this->db->prepare($query);
@@ -135,7 +154,7 @@ class User {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    private function assignPrimaryRole($userId, $roleId) {
+    private function assignRole($userId, $roleId) {
         $query = "
             INSERT INTO ws_user_roles (
                 user_id,
@@ -156,6 +175,37 @@ class User {
         $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $stmt->bindParam(':role_id', $roleId, PDO::PARAM_INT);
         return $stmt->execute();
+    }
+
+    private function normalizeRoleIds($roleIds) {
+        if (!is_array($roleIds)) {
+            $roleIds = [$roleIds];
+        }
+
+        $normalized = [];
+        foreach ($roleIds as $roleId) {
+            $value = (int) $roleId;
+            if ($value > 0) {
+                $normalized[] = $value;
+            }
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    private function assignRoles($userId, $roleIds) {
+        $normalizedRoleIds = $this->normalizeRoleIds($roleIds);
+        if (count($normalizedRoleIds) === 0) {
+            return false;
+        }
+
+        foreach ($normalizedRoleIds as $roleId) {
+            if (!$this->assignRole($userId, $roleId)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private function hashPassword($password) {
@@ -239,7 +289,7 @@ class User {
 
             $userId = (int) $this->db->lastInsertId();
 
-            if (!$this->assignPrimaryRole($userId, (int) $data['role_id'])) {
+            if (!$this->assignRoles($userId, $data['role_ids'])) {
                 throw new Exception('No fue posible asignar el rol al usuario.');
             }
 
@@ -334,7 +384,7 @@ class User {
             $deleteRoles->bindParam(':user_id', $id, PDO::PARAM_INT);
             $deleteRoles->execute();
 
-            if (!$this->assignPrimaryRole((int) $id, (int) $data['role_id'])) {
+            if (!$this->assignRoles((int) $id, $data['role_ids'])) {
                 throw new Exception('No fue posible reasignar el rol del usuario.');
             }
 

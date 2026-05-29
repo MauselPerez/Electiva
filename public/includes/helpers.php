@@ -1,4 +1,65 @@
 <?php
+function getCurrentRoleNames() {
+    $roleNames = [];
+
+    if (!empty($_SESSION['role_names'])) {
+        foreach (explode(',', (string) $_SESSION['role_names']) as $name) {
+            $name = strtoupper(trim($name));
+            if ($name !== '') {
+                $roleNames[] = $name;
+            }
+        }
+    }
+
+    if (!empty($_SESSION['role_name'])) {
+        $singleRole = strtoupper(trim((string) $_SESSION['role_name']));
+        if ($singleRole !== '') {
+            $roleNames[] = $singleRole;
+        }
+    }
+
+    return array_values(array_unique($roleNames));
+}
+
+function userHasAnyRole($requiredRoles) {
+    $currentRoles = getCurrentRoleNames();
+    if (empty($currentRoles)) {
+        return false;
+    }
+
+    foreach ($requiredRoles as $role) {
+        if (in_array(strtoupper($role), $currentRoles, true)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function canAccessModule($moduleKey) {
+    if (userHasAnyRole(['ADMIN', 'MODULE_ADMIN'])) {
+        return true;
+    }
+
+    $modulePermissions = [
+        'students' => ['BENEFICIARY_MANAGER', 'DELIVERY_OPERATOR'],
+        'academic_programs' => ['BENEFICIARY_MANAGER', 'PLANNER'],
+        'schedules' => ['PLANNER', 'AUDITOR'],
+        'delivery' => ['DELIVERY_OPERATOR', 'AUDITOR'],
+        'reports' => ['REPORT_VIEWER', 'PLANNER', 'AUDITOR'],
+        'organizational_units' => ['MODULE_ADMIN'],
+        'roles' => ['MODULE_ADMIN'],
+        'profile_types' => ['MODULE_ADMIN'],
+        'users' => ['MODULE_ADMIN']
+    ];
+
+    if (!isset($modulePermissions[$moduleKey])) {
+        return false;
+    }
+
+    return userHasAnyRole($modulePermissions[$moduleKey]);
+}
+
 function card($rutaImagen, $nombreImagen, $nombreCarta) {
     $html = '<div class="col-md-4 col-sm-6 col-lg-3 col-xs-12 pt-3" style="text-align: center;">';
     $html .= '<a href="' . $rutaImagen . '" style="color: black; text-decoration: none;">';
