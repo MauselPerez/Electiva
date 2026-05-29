@@ -15,13 +15,34 @@ class AcademicProgram {
             SELECT
                 ou.id,
                 ou.name,
+                ou.parent_id,
+                parent_ou.name AS parent_name,
                 ou.is_active,
                 ou.created_at
             FROM ws_organizational_units ou
             INNER JOIN ws_organizational_unit_types outt
                 ON outt.id = ou.organizational_unit_type_id
+            LEFT JOIN ws_organizational_units parent_ou
+                ON parent_ou.id = ou.parent_id
             WHERE outt.name = 'PROGRAM'
             ORDER BY ou.id DESC
+        ");
+        $query->execute();
+        $query->setFetchMode(PDO::FETCH_ASSOC);
+        return $query->fetchAll();
+    }
+
+    public function getProgramParentUnits() {
+        $query = $this->db->prepare("
+            SELECT
+                ou.id,
+                ou.name
+            FROM ws_organizational_units ou
+            INNER JOIN ws_organizational_unit_types outt
+                ON outt.id = ou.organizational_unit_type_id
+            WHERE outt.name = 'FACULTY'
+              AND ou.is_active = 1
+            ORDER BY ou.name ASC
         ");
         $query->execute();
         $query->setFetchMode(PDO::FETCH_ASSOC);
@@ -32,11 +53,13 @@ class AcademicProgram {
     public function createProgram($data) {
         $query = "
             INSERT INTO ws_organizational_units (
+                parent_id,
                 name,
                 organizational_unit_type_id,
                 is_active
             )
             SELECT
+                :parent_id,
                 :name,
                 outt.id,
                 1
@@ -46,6 +69,7 @@ class AcademicProgram {
         ";
         
         $stmt = $this->db->prepare($query);
+        $stmt->bindParam(':parent_id', $data['parent_id'], PDO::PARAM_INT);
         $stmt->bindParam(':name', $data['name']);
         
         return $stmt->execute();
@@ -55,12 +79,14 @@ class AcademicProgram {
     public function updateProgram($id, $data) {
         $query = "UPDATE ws_organizational_units 
                     SET 
-                        name = :name 
+                        name = :name,
+                        parent_id = :parent_id
                     WHERE 
                         id = :id";
         
         $stmt = $this->db->prepare($query);
         $stmt->bindParam(':name', $data['name_edit']);
+        $stmt->bindParam(':parent_id', $data['parent_id_edit'], PDO::PARAM_INT);
         $stmt->bindParam(':id', $id);
         
         return $stmt->execute();

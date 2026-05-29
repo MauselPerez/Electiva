@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['action']) && $_GET['act
 }
 
 $academic_programs = $controller->index();
+$program_parent_units = $controller->getProgramParentUnits();
 $title = "Programas académicos";
 ob_start();
 ?>
@@ -127,7 +128,7 @@ ob_start();
     }
 
     .table-shell table {
-        min-width: 640px;
+        min-width: 780px;
     }
 
     @media (max-width: 575.98px) {
@@ -144,7 +145,7 @@ ob_start();
         }
 
         .table-shell table {
-            min-width: 520px;
+            min-width: 680px;
         }
     }
 </style>
@@ -183,6 +184,7 @@ ob_start();
                         <tr>
                             <th>ID</th>
                             <th>Programa</th>
+                            <th>Unidad padre</th>
                             <th>Estado</th>
                             <th style="width: 7%;"></th>
                         </tr>
@@ -193,6 +195,7 @@ ob_start();
                         <tr>
                             <td><?= htmlspecialchars($academic_program['id']); ?></td>
                             <td><?= htmlspecialchars($academic_program['name']); ?></td>
+                            <td><?= htmlspecialchars($academic_program['parent_name'] ?? 'Sin asignar'); ?></td>
                             <td style="text-align:center;">
                                 <?php if ((int) $academic_program['is_active'] === 1) { ?>
                                     <span class="badge badge-success" style="padding: 8px;">Activo</span>
@@ -201,7 +204,7 @@ ob_start();
                                 <?php } ?>
                             </td>
                             <td>
-                                <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="show_edit(this)" data-parent-id="<?= htmlspecialchars($academic_program['parent_id']); ?>">
                                     <i class="fa fa-edit"></i>
                                 </button>
                                 <button type="button" class="btn btn-danger btn-sm" onclick="delete_program(<?= htmlspecialchars($academic_program['id']); ?>)">
@@ -216,6 +219,7 @@ ob_start();
                         <tr>
                             <th>ID</th>
                             <th>Programa</th>
+                            <th>Unidad padre</th>
                             <th>Estado</th>
                             <th style="width: 7%;"></th>
                         </tr>
@@ -241,6 +245,16 @@ ob_start();
                         <label for="name">Programa academico</label>
                         <input type="text" class="form-control" id="name" name="name" required>
                     </div>
+
+                    <div class="form-group">
+                        <label for="parent_id">Unidad padre (Facultad)</label>
+                        <select class="form-control" id="parent_id" name="parent_id" required>
+                            <option value="">Seleccione una unidad padre</option>
+<?php foreach ($program_parent_units as $parent_unit) { ?>
+                            <option value="<?= htmlspecialchars($parent_unit['id']); ?>"><?= htmlspecialchars($parent_unit['name']); ?></option>
+<?php } ?>
+                        </select>
+                    </div>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
@@ -264,6 +278,17 @@ ob_start();
                         <label for="name_edit">Programa academico</label>
                         <input type="text" class="form-control" id="name_edit" name="name_edit" required>
                     </div>
+
+                    <div class="form-group">
+                        <label for="parent_id_edit">Unidad padre (Facultad)</label>
+                        <select class="form-control" id="parent_id_edit" name="parent_id_edit" required>
+                            <option value="">Seleccione una unidad padre</option>
+<?php foreach ($program_parent_units as $parent_unit) { ?>
+                            <option value="<?= htmlspecialchars($parent_unit['id']); ?>"><?= htmlspecialchars($parent_unit['name']); ?></option>
+<?php } ?>
+                        </select>
+                    </div>
+
                     <input type="hidden" name="id" id="id">
                 </div>
                 <div class="modal-footer">
@@ -315,8 +340,10 @@ ob_start();
     function show_edit(element) {
         var id = $(element).closest('tr').find('td').eq(0).text();
         var name = $(element).closest('tr').find('td').eq(1).text();
+        var parentId = $(element).data('parent-id');
         $('#id').val(id);
         $('#name_edit').val(name);
+        $('#parent_id_edit').val(parentId ? String(parentId) : '');
         $('#edit_program').modal('show');
     }
 
