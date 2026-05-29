@@ -4,8 +4,6 @@
 #Ignora templates
 templates/AdminLTE-3.0.5/
 
-#Ignora models
-models/
 
 #Ignora models admin
 models/models_admin.php
