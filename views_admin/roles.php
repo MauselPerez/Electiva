@@ -175,7 +175,7 @@ ob_start();
         </div>
         <div class="panel-body">
             <div class="alert alert-info" style="border-radius: 14px; margin-bottom: 16px;">
-                <strong>Roles recomendados inicialmente:</strong> ADMIN, PLANNER, DELIVERY_OPERATOR, BENEFICIARY_MANAGER, REPORT_VIEWER y AUDITOR.
+                <strong>Roles recomendados inicialmente:</strong> ADMINISTRADOR, PLANIFICADOR, OPERADOR_ENTREGAS, GESTOR_BENEFICIARIOS, VISOR_REPORTES y AUDITOR.
                 Un mismo usuario puede recibir varios roles usando la relación `ws_user_roles`.
             </div>
             <div class="table-shell">

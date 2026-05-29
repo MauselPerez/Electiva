@@ -37,20 +37,20 @@ function userHasAnyRole($requiredRoles) {
 }
 
 function canAccessModule($moduleKey) {
-    if (userHasAnyRole(['ADMIN', 'MODULE_ADMIN'])) {
+    if (userHasAnyRole(['ADMINISTRADOR', 'ADMIN_MODULO'])) {
         return true;
     }
 
     $modulePermissions = [
-        'students' => ['BENEFICIARY_MANAGER', 'DELIVERY_OPERATOR'],
-        'academic_programs' => ['BENEFICIARY_MANAGER', 'PLANNER'],
-        'schedules' => ['PLANNER', 'AUDITOR'],
-        'delivery' => ['DELIVERY_OPERATOR', 'AUDITOR'],
-        'reports' => ['REPORT_VIEWER', 'PLANNER', 'AUDITOR'],
-        'organizational_units' => ['MODULE_ADMIN'],
-        'roles' => ['MODULE_ADMIN'],
-        'profile_types' => ['MODULE_ADMIN'],
-        'users' => ['MODULE_ADMIN']
+        'students' => ['GESTOR_BENEFICIARIOS', 'OPERADOR_ENTREGAS'],
+        'academic_programs' => ['GESTOR_BENEFICIARIOS', 'PLANIFICADOR'],
+        'schedules' => ['PLANIFICADOR', 'AUDITOR'],
+        'delivery' => ['OPERADOR_ENTREGAS', 'AUDITOR'],
+        'reports' => ['VISOR_REPORTES', 'PLANIFICADOR', 'AUDITOR'],
+        'organizational_units' => ['ADMIN_MODULO'],
+        'roles' => ['ADMIN_MODULO'],
+        'profile_types' => ['ADMIN_MODULO'],
+        'users' => ['ADMIN_MODULO']
     ];
 
     if (!isset($modulePermissions[$moduleKey])) {
