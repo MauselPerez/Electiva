@@ -81,68 +81,66 @@ ob_start();
         background: linear-gradient(180deg, #f8fbff 0%, #f2f7fb 100%);
         border: 1px solid #dbe7f3;
         border-radius: 16px;
-        padding: 16px;
-    }
-    .org-root-list,
-    .org-root-list ul {
-        list-style: none;
-        margin: 0;
-        padding-left: 0;
-    }
-    .org-root-list ul {
-        border-left: 1px dashed #b7c9dc;
-        margin-left: 20px;
-        padding-left: 18px;
-    }
-    .org-root-list li {
-        margin: 10px 0;
+        max-height: 680px;
+        overflow: auto;
+        padding: 18px;
         position: relative;
     }
-    .org-root-list li::before {
-        background: #b7c9dc;
-        content: "";
-        height: 1px;
-        left: -18px;
-        position: absolute;
-        top: 20px;
-        width: 18px;
-    }
-    .org-root-list > li::before {
-        display: none;
+    .org-diagram {
+        min-width: 920px;
+        min-height: 420px;
+        position: relative;
+        z-index: 2;
     }
     .org-node {
-        align-items: center;
-        background: #fff;
-        border: 1px solid #d2e1f0;
+        background: #ffffff;
+        border: 2px solid #d8a522;
         border-radius: 12px;
-        box-shadow: 0 6px 16px rgba(18, 32, 53, 0.06);
+        box-shadow: 0 8px 18px rgba(31, 45, 61, 0.1);
         display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        padding: 10px 12px;
+        flex-direction: column;
+        gap: 6px;
+        left: 0;
+        min-height: 84px;
+        padding: 10px 14px;
+        position: absolute;
+        top: 0;
+        width: 220px;
+    }
+    .org-node[data-depth="0"] {
+        background: linear-gradient(160deg, #ffd36f 0%, #f7b72a 100%);
+        border-color: #f0ac19;
+    }
+    .org-node[data-depth="1"] {
+        background: linear-gradient(160deg, #ffe4a9 0%, #ffd577 100%);
     }
     .org-node.inactive {
         opacity: 0.62;
     }
     .org-name {
-        color: #1f2d3d;
+        color: #2a2260;
+        font-size: 0.97rem;
         font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
     }
-    .org-type {
-        background: #e8f1fb;
-        border-radius: 999px;
-        color: #265d93;
-        font-size: 0.76rem;
-        font-weight: 700;
-        padding: 4px 10px;
-        text-transform: uppercase;
+    .org-meta {
+        align-items: center;
+        display: flex;
+        gap: 6px;
+        justify-content: center;
     }
+    .org-type,
     .org-status {
         border-radius: 999px;
-        font-size: 0.73rem;
+        font-size: 0.69rem;
         font-weight: 700;
-        margin-left: auto;
-        padding: 4px 10px;
+        padding: 3px 9px;
+        text-transform: uppercase;
+    }
+    .org-type {
+        background: #ece8ff;
+        color: #4d3592;
     }
     .org-status.active {
         background: #d6f5e0;
@@ -157,11 +155,27 @@ ob_start();
         font-style: italic;
         margin: 0;
     }
+    .org-connectors {
+        height: 100%;
+        left: 0;
+        overflow: visible;
+        pointer-events: none;
+        position: absolute;
+        top: 0;
+        width: 100%;
+        z-index: 1;
+    }
+    .org-connector {
+        fill: none;
+        stroke: #6e3bb9;
+        stroke-width: 2;
+    }
     @media (max-width: 575.98px) {
         .module-hero-body { padding: 22px 18px; }
         .module-title { font-size: 1.45rem; }
         .hero-actions { justify-content: flex-start; }
         .table-shell table { min-width: 900px; }
+        .org-diagram { min-width: 920px; }
     }
 </style>
 
@@ -254,7 +268,7 @@ ob_start();
         </div>
         <div class="panel-body">
             <div class="org-visual-wrap" id="org_chart_container">
-                <p class="org-empty">Cargando organigrama...</p>
+                <p class="org-empty">Cargando diagrama...</p>
             </div>
         </div>
     </div>
@@ -426,6 +440,7 @@ ob_start();
 
             if (parentId && byId[parentId]) {
                 byId[parentId].children.push(byId[id]);
+                byId[id].parent = byId[parentId];
             } else {
                 roots.push(byId[id]);
             }
@@ -447,29 +462,123 @@ ob_start();
 
         sortNodes(roots);
 
-        function renderList(nodes) {
-            if (!nodes || nodes.length === 0) {
-                return '';
-            }
-
-            var html = '<ul class="org-root-list">';
-            nodes.forEach(function(node) {
-                var isActive = Number(node.raw.is_active) === 1;
-                var typeText = escapeHtml(node.raw.unit_type || 'SIN TIPO');
-                html += '<li>';
-                html += '<div class="org-node ' + (isActive ? '' : 'inactive') + '">';
-                html += '<span class="org-name">' + escapeHtml(node.raw.name || '') + '</span>';
-                html += '<span class="org-type">' + typeText + '</span>';
-                html += '<span class="org-status ' + (isActive ? 'active' : 'inactive') + '">' + (isActive ? 'Activo' : 'Inactivo') + '</span>';
-                html += '</div>';
-                html += renderList(node.children);
-                html += '</li>';
+        function assignDepth(node, depth) {
+            node.depth = depth;
+            node.children.forEach(function(child) {
+                assignDepth(child, depth + 1);
             });
-            html += '</ul>';
-            return html;
         }
 
-        container.innerHTML = renderList(roots);
+        roots.forEach(function(root) {
+            assignDepth(root, 0);
+        });
+
+        var NODE_WIDTH = 220;
+        var NODE_HEIGHT = 84;
+        var H_GAP = 34;
+        var V_GAP = 110;
+        var ROOT_GAP = 84;
+        var PADDING = 24;
+        var allNodes = [];
+        var maxDepth = 0;
+
+        function computeSubtreeWidth(node) {
+            if (!node.children || node.children.length === 0) {
+                node.subtreeWidth = NODE_WIDTH;
+                return node.subtreeWidth;
+            }
+
+            var childrenTotal = 0;
+            node.children.forEach(function(child, index) {
+                childrenTotal += computeSubtreeWidth(child);
+                if (index < node.children.length - 1) {
+                    childrenTotal += H_GAP;
+                }
+            });
+
+            node.subtreeWidth = Math.max(NODE_WIDTH, childrenTotal);
+            return node.subtreeWidth;
+        }
+
+        roots.forEach(function(root) {
+            computeSubtreeWidth(root);
+        });
+
+        function placeNode(node, startX, depth) {
+            var subtreeWidth = node.subtreeWidth || NODE_WIDTH;
+            node.x = startX + (subtreeWidth - NODE_WIDTH) / 2;
+            node.y = PADDING + depth * (NODE_HEIGHT + V_GAP);
+            node.depth = depth;
+            maxDepth = Math.max(maxDepth, depth);
+            allNodes.push(node);
+
+            if (!node.children || node.children.length === 0) {
+                return;
+            }
+
+            var childrenTotal = 0;
+            node.children.forEach(function(child, index) {
+                childrenTotal += child.subtreeWidth;
+                if (index < node.children.length - 1) {
+                    childrenTotal += H_GAP;
+                }
+            });
+
+            var currentChildX = startX + (subtreeWidth - childrenTotal) / 2;
+            node.children.forEach(function(child) {
+                placeNode(child, currentChildX, depth + 1);
+                currentChildX += child.subtreeWidth + H_GAP;
+            });
+        }
+
+        var currentRootX = PADDING;
+        roots.forEach(function(root, index) {
+            placeNode(root, currentRootX, 0);
+            currentRootX += root.subtreeWidth;
+            if (index < roots.length - 1) {
+                currentRootX += ROOT_GAP;
+            }
+        });
+
+        var diagramWidth = Math.max(920, currentRootX + PADDING);
+        var diagramHeight = Math.max(420, PADDING * 2 + (maxDepth + 1) * NODE_HEIGHT + maxDepth * V_GAP);
+
+        var html = '<div class="org-diagram" id="org_diagram" style="width:' + diagramWidth + 'px; height:' + diagramHeight + 'px;">';
+        html += '<svg class="org-connectors" id="org_connectors" width="' + diagramWidth + '" height="' + diagramHeight + '"></svg>';
+
+        allNodes.forEach(function(node) {
+            var isActive = Number(node.raw.is_active) === 1;
+            var typeText = escapeHtml(node.raw.unit_type || 'SIN TIPO');
+            html += '<div class="org-node ' + (isActive ? '' : 'inactive') + '" data-node-id="' + escapeHtml(node.raw.id) + '" data-depth="' + node.depth + '" style="left:' + node.x + 'px; top:' + node.y + 'px;">';
+            html += '<div class="org-name">' + escapeHtml(node.raw.name || '') + '</div>';
+            html += '<div class="org-meta">';
+            html += '<span class="org-type">' + typeText + '</span>';
+            html += '<span class="org-status ' + (isActive ? 'active' : 'inactive') + '">' + (isActive ? 'Activo' : 'Inactivo') + '</span>';
+            html += '</div>';
+            html += '</div>';
+        });
+
+        html += '</div>';
+        container.innerHTML = html;
+
+        var svg = document.getElementById('org_connectors');
+        Object.keys(byId).forEach(function(key) {
+            var node = byId[key];
+            if (!node.parent) {
+                return;
+            }
+
+            var x1 = node.parent.x + NODE_WIDTH / 2;
+            var y1 = node.parent.y + NODE_HEIGHT;
+            var x2 = node.x + NODE_WIDTH / 2;
+            var y2 = node.y;
+            var ym = y1 + (y2 - y1) / 2;
+
+            var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('class', 'org-connector');
+            path.setAttribute('d', 'M ' + x1 + ' ' + y1 + ' L ' + x1 + ' ' + ym + ' L ' + x2 + ' ' + ym + ' L ' + x2 + ' ' + y2);
+            svg.appendChild(path);
+        });
     }
 
     function show_edit(element) {
