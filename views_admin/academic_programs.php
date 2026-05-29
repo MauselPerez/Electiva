@@ -210,10 +210,6 @@ ob_start();
                             </td>
                         </tr>
 <?php } ?>
-<?php } else { ?>
-                        <tr>
-                            <td colspan="4" style="text-align: center;"><span style="background-color:#cccc00; padding: 10px; color:#ffffff; font-size:large;"><b>No hay programas registrados</b></span></td>
-                        </tr>
 <?php } ?>
                     </tbody>
                     <tfoot class="thead-dark">
@@ -280,8 +276,27 @@ ob_start();
 </div>  
 <script>
     $(document).ready(function() {
+        var dataTableEs = {
+            decimal: "",
+            emptyTable: "No hay programas registrados",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron coincidencias",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        };
+
         $('#table').DataTable({
-            language: { url: "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json" }
+            language: dataTableEs
         });
 
         $('#return').click(function() {

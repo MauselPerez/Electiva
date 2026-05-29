@@ -14,6 +14,9 @@ ob_start();
     }
 </style>
 <div class="row">
+    <?=card('organizational_units.php', 'organization_chart2.png', 'Organigrama')?>
+    <?=card('roles.php', 'coordinate.png', 'Roles y permisos')?>
+    <?=card('profile_types.php', 'team.png', 'Tipos de perfil')?>
     <?=card('students.php', 'audience.png', 'Estudiantes')?>
     <?=card('schedules.php', 'schedule.png', 'Planificacion')?>
     <?=card('delivery.php', 'package_delivery.png', 'Entregas/Reparto')?>

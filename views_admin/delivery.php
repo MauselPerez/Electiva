@@ -862,23 +862,37 @@ ob_start();
         let lastQrAutoSearchedValue = '';
         let scannerBuffer = '';
         let scannerLastKeyAt = 0;
+        const dataTableEs = {
+            decimal: "",
+            emptyTable: "No hay datos disponibles",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)",
+            lengthMenu: "Mostrar _MENU_ registros",
+            loadingRecords: "Cargando...",
+            processing: "Procesando...",
+            search: "Buscar:",
+            zeroRecords: "No se encontraron coincidencias",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            }
+        };
 
         $('#table_deliveries').DataTable({
             responsive: true,
             autoWidth: false,
             order: [[0, 'desc']],
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json'
-            }
+            language: dataTableEs
         });
 
         new DataTable(document.querySelector('#table_students'), {
             responsive: true,
             autoWidth: false,
             order: [[1, 'asc']],
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json'
-            },
+            language: dataTableEs,
             initComplete: function() {
                 this.api().columns().every(function() {
                     var column = this;
@@ -904,9 +918,7 @@ ob_start();
             paging: false,
             searching: false,
             info: false,
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json'
-            }
+            language: dataTableEs
         });
 
         $('#table_delivery_scheduling tbody').on('click', 'tr', function() {
